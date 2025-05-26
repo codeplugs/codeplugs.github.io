@@ -1,7 +1,8 @@
 const routes = {
   '/': 'home.html',
   '/about': 'about.html',
-  '/contact': 'contact.html'
+  '/contact': 'contact.html',
+'/one': 'one.html'
 };
 
 async function router() {
