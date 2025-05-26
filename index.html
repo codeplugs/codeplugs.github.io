@@ -8,6 +8,18 @@
     rel="stylesheet" 
     href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
   >
+  <style>
+    html, body {
+      height: 100%;
+    }
+    body {
+      display: flex;
+      flex-direction: column;
+    }
+    main {
+      flex: 1;
+    }
+  </style>
 </head>
 <body>
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -19,8 +31,17 @@
     </div>
   </nav>
 
-  <div class="container mt-4" id="app">Loading...</div>
+  <main class="container mt-4" id="app">
+    Loading...
+  </main>
 
+  <footer class="bg-dark text-white text-center py-3">
+    &copy; <span id="year"></span> MySite. All rights reserved.
+  </footer>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
   <script src="js/router.js"></script>
 </body>
 </html>
