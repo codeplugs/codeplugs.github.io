@@ -1,51 +1,36 @@
-<div class="container mt-5">
-  <h2 class="text-center">Fetch GitHub Repo Info</h2>
-  <form id="repoForm">
-    <div class="form-group">
-      <label>GitHub Repository (owner/repo)</label>
-      <input class="form-control" id="repo_input" type="text" placeholder="e.g. torvalds/linux" required>
-    </div>
-    <button type="submit" class="btn btn-primary btn-block">Fetch Info</button>
-  </form>
+<h2>GitHub User Info Lookup</h2>
 
-  <div class="mt-4">
-    <label>Repo Info:</label>
-    <textarea id="repo_output" class="form-control" rows="10" readonly></textarea>
-  </div>
-</div>
+<form id="githubForm">
+  <label>GitHub Username: 
+    <input type="text" id="username" required>
+  </label>
+  <button type="submit">Fetch Info</button>
+</form>
+
+<br>
+<textarea id="result" rows="10" cols="60" placeholder="GitHub user info will appear here..."></textarea>
 
 <script>
-document.getElementById("repoForm").addEventListener("submit", function(e) {
+document.getElementById('githubForm').addEventListener('submit', function(e) {
   e.preventDefault();
 
-  const repoInput = document.getElementById("repo_input").value.trim();
-  const outputBox = document.getElementById("repo_output");
-
-  if (!repoInput.includes("/")) {
-    outputBox.value = "Format must be owner/repo (e.g. torvalds/linux)";
+  var username = document.getElementById('username').value.trim();
+  if (!username) {
+    document.getElementById('result').value = 'Please enter a username.';
     return;
   }
 
-  outputBox.value = "Loading...";
-
-  fetch(`https://api.github.com/repos/${repoInput}`)
-    .then(response => {
-      if (!response.ok) throw new Error("Repo not found or API error");
-      return response.json();
-    })
-    .then(data => {
-      outputBox.value = JSON.stringify({
-        name: data.name,
-        full_name: data.full_name,
-        description: data.description,
-        stars: data.stargazers_count,
-        forks: data.forks,
-        language: data.language,
-        updated_at: data.updated_at
-      }, null, 2);
-    })
-    .catch(error => {
-      outputBox.value = "Error: " + error.message;
-    });
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', 'https://api.github.com/users/' + encodeURIComponent(username), true);
+  xhr.onreadystatechange = function () {
+    if (xhr.readyState === 4) {
+      if (xhr.status === 200) {
+        document.getElementById('result').value = xhr.responseText;
+      } else {
+        document.getElementById('result').value = 'Error: ' + xhr.status + '\n' + xhr.responseText;
+      }
+    }
+  };
+  xhr.send();
 });
 </script>
