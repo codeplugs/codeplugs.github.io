@@ -19,7 +19,7 @@
        
        
       
-       <form id="jaxloads" method="GET">
+       <form id="jaxloads">
         
          <div class="form-group">
            <div class="form-row">
@@ -72,55 +72,27 @@
  </div>
 
 <script>
-document.getElementById('jaxloads').addEventListener('submit', function(e) {
-  e.preventDefault();
+document.getElementById("jaxloads").addEventListener("submit", function (e) {
+  e.preventDefault(); // Prevent actual form submission
 
-  const yturlInput = document.getElementById('yt_url');
-  const formatSelect = document.getElementById('format_select');
-  const resultBox = document.getElementById('log_result');
-  const respLabel = document.getElementById('resp');
+  const yturl = document.getElementById("yt_url").value;
+  const format = document.getElementById("format_select").value;
+  const log = document.getElementById("log_result");
 
-  const yturl = yturlInput.value.trim();
-  const form = formatSelect.value;
-
-  resultBox.value = '';
-
-  if (!yturl) {
-    respLabel.textContent = 'YouTube URL is required.';
-    yturlInput.focus();
-    return;
-  }
-  if (!form) {
-    respLabel.textContent = 'Please select a format.';
-    formatSelect.focus();
+  if (!yturl || !format) {
+    log.value = "Please enter both URL and format.";
     return;
   }
 
-  respLabel.textContent = 'Loading...';
+  log.value = "Loading / - \\ | - / \\ | ...";
 
-  // Spinner animation
-  const spinnerFrames = ['/', '-', '\\', '|'];
-  let frame = 0;
-  const spinnerInterval = setInterval(() => {
-    respLabel.textContent = 'Loading ' + spinnerFrames[frame++ % spinnerFrames.length];
-  }, 100);
-
-  const xhr = new XMLHttpRequest();
-  xhr.open('GET', `/api/download?yturl=${encodeURIComponent(yturl)}&form=${form}`, true);
-
-  xhr.onreadystatechange = function () {
-    if (xhr.readyState === 4) {
-      clearInterval(spinnerInterval);
-      if (xhr.status === 200) {
-        respLabel.textContent = 'Done';
-        resultBox.value = xhr.responseText;
-      } else {
-        respLabel.textContent = 'Error';
-        resultBox.value = xhr.responseText || 'Request failed. Check server logs.';
-      }
-    }
-  };
-
-  xhr.send();
+  fetch(`https://your-vps.com/api/download?yturl=${encodeURIComponent(yturl)}&form=${format}`)
+    .then((res) => res.text())
+    .then((data) => {
+      log.value = data;
+    })
+    .catch((err) => {
+      log.value = "Error: " + err.message;
+    });
 });
 </script>
