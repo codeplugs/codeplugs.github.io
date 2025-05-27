@@ -36,10 +36,16 @@ window.addEventListener('DOMContentLoaded', () => {
   const routes = {
     '/': 'home.html',
     '/about': 'about.html',
-    '/two': 'two.html'
+    '/two': 'two.html',
+    '/one': 'one.html'
   };
-  const path = location.pathname;
+
+  const savedPath = sessionStorage.getItem('redirectPath');
+  sessionStorage.removeItem('redirectPath');
+
+  const path = savedPath || location.pathname;
   const file = routes[path] || 'home.html';
+
   history.replaceState({ file }, '', path);
   loadPage(file);
 });
