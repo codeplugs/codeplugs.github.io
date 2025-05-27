@@ -1,6 +1,6 @@
 function navigate(page) {
-  history.pushState({ page }, '', '/');
-  sessionStorage.setItem('currentPage', page); // Store page
+  const path = '/' + page.replace('.html', '');
+  history.pushState({ page }, '', path); // Now updates URL correctly
   loadPage(page);
 }
 
@@ -12,6 +12,7 @@ async function loadPage(page) {
     const html = await res.text();
     app.innerHTML = html;
 
+    // Run page-specific setup if needed
     if (page === 'one.html') initOnePage();
     if (page === 'two.html') setupTwoPage();
   } catch {
@@ -20,16 +21,14 @@ async function loadPage(page) {
 }
 
 window.addEventListener('popstate', (e) => {
-  const page = e.state?.page || sessionStorage.getItem('currentPage') || 'home.html';
+  const page = e.state?.page || 'home.html';
   loadPage(page);
 });
 
 window.addEventListener('DOMContentLoaded', () => {
-  const savedPage = sessionStorage.getItem('currentPage') || 'home.html';
-  history.replaceState({ page: savedPage }, '', '/');
-  loadPage(savedPage);
+  const path = location.pathname.replace('/', '') || 'home';
+  loadPage(path + '.html');
 });
-
 
 // Example page scripts (adapt to your code)
 
