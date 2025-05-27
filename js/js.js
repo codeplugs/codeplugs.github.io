@@ -1,5 +1,6 @@
 function navigate(page) {
-  history.pushState({ page }, '', '/'); // keep URL at root (or add hash if you want)
+  const path = '/' + page.replace('.html', '');
+  history.pushState({ page }, '', path); // Now updates URL correctly
   loadPage(page);
 }
 
@@ -25,8 +26,8 @@ window.addEventListener('popstate', (e) => {
 });
 
 window.addEventListener('DOMContentLoaded', () => {
-  // Load home page on initial load
-  loadPage('home.html');
+  const path = location.pathname.replace('/', '') || 'home';
+  loadPage(path + '.html');
 });
 
 // Example page scripts (adapt to your code)
