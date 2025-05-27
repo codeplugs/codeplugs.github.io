@@ -20,7 +20,7 @@ async function loadPage(file) {
       document.body.appendChild(newScript);
       document.body.removeChild(newScript);
     });
-
+    if (file === 'one.html') initOnePage();
     if (file === 'two.html') setupTwoPage();
   } catch {
     document.getElementById('app').innerHTML = '<h1>Page not found</h1>';
@@ -43,6 +43,38 @@ window.addEventListener('DOMContentLoaded', () => {
   history.replaceState({ file }, '', path);
   loadPage(file);
 });
+
+
+function initOnePage() {
+  const form = document.getElementById("jaxloads");
+  if (!form) return;
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const yturl = document.getElementById("yt_url").value.trim();
+    const format = document.getElementById("format_select").value;
+    const log = document.getElementById("log_result");
+
+    if (!yturl || !format) {
+      log.value = "Please enter both URL and format.";
+      return;
+    }
+
+    log.value = "Loading...";
+
+    fetch(`https://rvdkewwyycep.ap-southeast-1.clawcloudrun.com/api/download?yturl=${encodeURIComponent(yturl)}&form=${format}`)
+      .then(res => res.text())
+      .then(data => {
+        log.value = data;
+      })
+      .catch(err => {
+        log.value = "Error: " + err.message;
+      });
+  });
+}
+
+
 
 function setupTwoPage() {
   const form = document.getElementById('githubForm');
