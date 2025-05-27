@@ -1,47 +1,36 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Bootstrap SPA</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link 
-    rel="stylesheet" 
-    href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-  >
-  <style>
-    html, body {
-      height: 100%;
-    }
-    body {
-      display: flex;
-      flex-direction: column;
-    }
-    main {
-      flex: 1;
-    }
-  </style>
-</head>
-<body>
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <a class="navbar-brand" href="#">MySite</a>
-    <div class="navbar-nav">
-      <a class="nav-item nav-link" href="#/">Home</a>
-      <a class="nav-item nav-link" href="#/about">About</a>
-      <a class="nav-item nav-link" href="#/contact">Contact</a>
-    </div>
-  </nav>
+<h2>GitHub User Info Lookup</h2>
 
-  <main class="container mt-4" id="app">
-    Loading...
-  </main>
+<form id="githubForm">
+  <label>GitHub Username: 
+    <input type="text" id="username" required>
+  </label>
+  <button type="submit">Fetch Info</button>
+</form>
 
-  <footer class="bg-dark text-white text-center py-3">
-    &copy; <span id="year"></span> MySite. All rights reserved.
-  </footer>
+<br>
+<textarea id="result" rows="10" cols="60" placeholder="GitHub user info will appear here..."></textarea>
 
-  <script>
-    document.getElementById('year').textContent = new Date().getFullYear();
-  </script>
-  <script src="js/router.js"></script>
-</body>
-</html>
+<script>
+document.getElementById('githubForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+
+  var username = document.getElementById('username').value.trim();
+  if (!username) {
+    document.getElementById('result').value = 'Please enter a username.';
+    return;
+  }
+
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', 'https://api.github.com/users/' + encodeURIComponent(username), true);
+  xhr.onreadystatechange = function () {
+    if (xhr.readyState === 4) {
+      if (xhr.status === 200) {
+        document.getElementById('result').value = xhr.responseText;
+      } else {
+        document.getElementById('result').value = 'Error: ' + xhr.status + '\n' + xhr.responseText;
+      }
+    }
+  };
+  xhr.send();
+});
+</script>
