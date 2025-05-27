@@ -1,7 +1,10 @@
-function navigate(path, file) {
-  history.pushState({ file }, '', path);
-  loadPage(file);
-}
+const routes = {
+  '/': 'home.html',
+  '/about': 'about.html',
+  '/contact': 'contact.html',
+  '/one': 'one.html',
+  '/two': 'two.html'
+};
 
 async function loadPage(file) {
   try {
@@ -10,6 +13,7 @@ async function loadPage(file) {
     const app = document.getElementById('app');
     app.innerHTML = html;
 
+    // Execute any inline scripts from the loaded page
     app.querySelectorAll('script').forEach(oldScript => {
       const newScript = document.createElement('script');
       if (oldScript.src) {
@@ -20,6 +24,8 @@ async function loadPage(file) {
       document.body.appendChild(newScript);
       document.body.removeChild(newScript);
     });
+
+    // Initialize page-specific JS
     if (file === 'one.html') initOnePage();
     if (file === 'two.html') setupTwoPage();
   } catch {
@@ -27,29 +33,18 @@ async function loadPage(file) {
   }
 }
 
-window.addEventListener('popstate', (e) => {
-  const file = e.state?.file || 'home.html';
-  loadPage(file);
-});
-
-window.addEventListener('DOMContentLoaded', () => {
-  const routes = {
-    '/': 'home.html',
-    '/about': 'about.html',
-    '/two': 'two.html',
-    '/one': 'one.html'
-  };
-
-  const savedPath = sessionStorage.getItem('redirectPath');
-  sessionStorage.removeItem('redirectPath');
-
-  const path = savedPath || location.pathname;
+function router() {
+  const hash = location.hash || '#/';
+  const path = hash.slice(1);
   const file = routes[path] || 'home.html';
-
-  history.replaceState({ file }, '', path);
   loadPage(file);
-});
+}
 
+window.addEventListener('hashchange', router);
+window.addEventListener('load', router);
+
+
+// Your page init functions (copy from your previous js)
 
 function initOnePage() {
   const form = document.getElementById("jaxloads");
@@ -80,8 +75,6 @@ function initOnePage() {
   });
 }
 
-
-
 function setupTwoPage() {
   const form = document.getElementById('githubForm');
   if (!form) return;
@@ -99,9 +92,8 @@ function setupTwoPage() {
       .then(res => res.ok ? res.json() : Promise.reject(res))
       .then(data => {
         result.value = JSON.stringify(data, null, 2);
-        console.log(JSON.stringify(data, null, 2));
       })
-      .catch(err => {
+      .catch(() => {
         result.value = 'Error fetching user info.';
       });
   });
