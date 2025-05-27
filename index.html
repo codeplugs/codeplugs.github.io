@@ -20,17 +20,16 @@
 
 </head>
 <body>
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <a class="navbar-brand" href="#">MySite</a>
-    <div class="navbar-nav">
-       <a href="#" onclick="navigate('home.html')">Home</a>
-  <a href="#" onclick="navigate('about.html')">About</a>
-  <a href="#" onclick="navigate('one.html')">One</a>
-  <a href="#" onclick="navigate('two.html')">Two</a>
-      </div>
+   <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="#" onclick="navigate('home.html'); return false;">Home</a>
+    <a class="nav-link" href="#" onclick="navigate('about.html'); return false;">About</a>
+    <a class="nav-link" href="#" onclick="navigate('one.html'); return false;">YTConvert</a>
+    <a class="nav-link" href="#" onclick="navigate('two.html'); return false;">Test</a>
   </nav>
 
-  <main class="container mt-4" id="app">Loading...</main>
+  <!-- Main content replaced -->
+
+  <main class="container mt-4" id="app"></main>
 
     <footer class="bg-dark text-white text-center py-3">
     &copy; <span id="year"></span> MySite. All rights reserved.
