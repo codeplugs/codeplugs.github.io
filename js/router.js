@@ -7,8 +7,21 @@ async function loadPage(file) {
   try {
     const res = await fetch(file);
     const html = await res.text();
-    document.getElementById('app').innerHTML = html;
-  } catch {
+    const app = document.getElementById('app');
+    app.innerHTML = html;
+
+    // Re-run inline scripts in the loaded HTML
+    app.querySelectorAll('script').forEach(oldScript => {
+      const newScript = document.createElement('script');
+      if (oldScript.src) {
+        newScript.src = oldScript.src;
+      } else {
+        newScript.textContent = oldScript.textContent;
+      }
+      document.body.appendChild(newScript);
+      document.body.removeChild(newScript); // Clean up
+    });
+  } catch (err) {
     document.getElementById('app').innerHTML = '<h1>Page not found</h1>';
   }
 }
