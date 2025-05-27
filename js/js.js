@@ -93,6 +93,7 @@ function setupTwoPage() {
       .then(res => res.ok ? res.json() : Promise.reject(res))
       .then(data => {
         result.value = JSON.stringify(data, null, 2);
+        console.log(JSON.stringify(data, null, 2));
       })
       .catch(err => {
         result.value = 'Error fetching user info.';
