@@ -1,15 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Bootstrap SPA</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link 
-    rel="stylesheet" 
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link
+    rel="stylesheet"
     href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-  >
+  />
   <style>
-    html, body {
+    html,
+    body {
       height: 100%;
     }
     body {
@@ -19,29 +20,28 @@
     main {
       flex: 1;
     }
+    .nav-link.active {
+      font-weight: bold;
+      color: #fff !important;
+    }
   </style>
 </head>
 <body>
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <a class="navbar-brand" href="#">MySite</a>
     <div class="navbar-nav">
-      <a class="nav-item nav-link" href="#/">Home</a>
-      <a class="nav-item nav-link" href="#/about">About</a>
-      <a class="nav-item nav-link" href="#/contact">Contact</a>
+      <a class="nav-item nav-link" href="#" onclick="loadPage('home.html', this)">Home</a>
+      <a class="nav-item nav-link" href="#" onclick="loadPage('about.html', this)">About</a>
+      <a class="nav-item nav-link" href="#" onclick="loadPage('contact.html', this)">Contact</a>
     </div>
   </nav>
 
-  <main class="container mt-4" id="app">
-    Loading...
-  </main>
+  <main class="container mt-4" id="app">Loading...</main>
 
   <footer class="bg-dark text-white text-center py-3">
     &copy; <span id="year"></span> MySite. All rights reserved.
   </footer>
 
-  <script>
-    document.getElementById('year').textContent = new Date().getFullYear();
-  </script>
   <script src="js/router.js"></script>
 </body>
 </html>

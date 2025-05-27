@@ -1,61 +1,24 @@
-const routes = [
-  { path: '/', view: 'home.html', title: 'Home' },
-  { path: '/about', view: 'about.html', title: 'About' },
-  { path: '/contact', view: 'contact.html', title: 'Contact' },
-  { path: '/one', view: 'one.html', title: 'One' },
-  { path: '/two', view: 'two.html', title: 'Two' },
-  { path: '/user/:id', view: 'user.html', title: 'User Profile' } // dynamic example
-];
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('year').textContent = new Date().getFullYear();
+  loadPage('home.html'); // Load default page
+});
 
-function matchRoute(path) {
-  for (const route of routes) {
-    const routeParts = route.path.split('/');
-    const pathParts = path.split('/');
-
-    if (routeParts.length !== pathParts.length) continue;
-
-    const params = {};
-    let match = true;
-
-    for (let i = 0; i < routeParts.length; i++) {
-      if (routeParts[i].startsWith(':')) {
-        const paramName = routeParts[i].slice(1);
-        params[paramName] = pathParts[i];
-      } else if (routeParts[i] !== pathParts[i]) {
-        match = false;
-        break;
-      }
-    }
-
-    if (match) return { route, params };
-  }
-
-  return null;
-}
-
-async function router() {
-  const hash = location.hash.slice(1) || '/';
-  const { route, params } = matchRoute(hash) || {};
-
-  const page = route ? route.view : '404.html';
-  const title = route ? route.title : 'Page Not Found';
-
+async function loadPage(file, link = null) {
   try {
-    const res = await fetch(page);
-    if (!res.ok) throw new Error('Fetch failed');
+    const res = await fetch(file);
+    if (!res.ok) throw new Error('Network response not ok');
     const html = await res.text();
     document.getElementById('app').innerHTML = html;
-    document.title = title;
 
-    // Optional: you can pass params to the view script here
-    if (params) {
-      window.currentRouteParams = params;
-    }
+    // Set active nav link styling
+    document.querySelectorAll('.nav-link').forEach(a => a.classList.remove('active'));
+    if (link) link.classList.add('active');
+
+    // Update page title (optional)
+    document.title = 'MySite - ' + file.replace('.html', '').toUpperCase();
   } catch (err) {
-    document.getElementById('app').innerHTML = '<h1>Error loading page</h1>';
-    document.title = 'Error';
+    document.getElementById('app').innerHTML = `
+      <div class="alert alert-danger">Error loading page: ${file}</div>
+    `;
   }
 }
-
-window.addEventListener('hashchange', router);
-window.addEventListener('load', router);
