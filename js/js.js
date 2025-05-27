@@ -10,7 +10,6 @@ async function loadPage(file) {
     const app = document.getElementById('app');
     app.innerHTML = html;
 
-    // Re-run inline scripts in the loaded HTML
     app.querySelectorAll('script').forEach(oldScript => {
       const newScript = document.createElement('script');
       if (oldScript.src) {
@@ -19,31 +18,52 @@ async function loadPage(file) {
         newScript.textContent = oldScript.textContent;
       }
       document.body.appendChild(newScript);
-      document.body.removeChild(newScript); // Clean up
+      document.body.removeChild(newScript);
     });
-  } catch (err) {
+
+    if (file === 'two.html') setupTwoPage();
+  } catch {
     document.getElementById('app').innerHTML = '<h1>Page not found</h1>';
   }
 }
 
-// When user clicks browser back/forward
-window.onpopstate = (e) => {
+window.addEventListener('popstate', (e) => {
   const file = e.state?.file || 'home.html';
   loadPage(file);
-};
+});
 
-// When page first loads
 window.addEventListener('DOMContentLoaded', () => {
   const routes = {
     '/': 'home.html',
     '/about': 'about.html',
-    '/contact': 'contact.html',
-    '/one': 'one.html',
-    '/two': 'two.html',
+    '/two': 'two.html'
   };
-
   const path = location.pathname;
   const file = routes[path] || 'home.html';
   history.replaceState({ file }, '', path);
   loadPage(file);
 });
+
+function setupTwoPage() {
+  const form = document.getElementById('githubForm');
+  if (!form) return;
+
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const username = document.getElementById('username').value.trim();
+    const result = document.getElementById('result');
+    if (!username) {
+      result.value = 'Please enter a username.';
+      return;
+    }
+
+    fetch('https://api.github.com/users/' + encodeURIComponent(username))
+      .then(res => res.ok ? res.json() : Promise.reject(res))
+      .then(data => {
+        result.value = JSON.stringify(data, null, 2);
+      })
+      .catch(err => {
+        result.value = 'Error fetching user info.';
+      });
+  });
+}

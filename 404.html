@@ -1,9 +1,37 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta http-equiv="refresh" content="0; url=/#" />
+  <meta charset="UTF-8">
+  <title>MySite</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link 
+    rel="stylesheet" 
+    href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <style>
+    html, body { height: 100%; }
+    body { display: flex; flex-direction: column; }
+    main { flex: 1; }
+  </style>
 </head>
 <body>
-  <p>If you are not redirected, <a href="/#">click here</a>.</p>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="/">MySite</a>
+    <div class="navbar-nav">
+      <a class="nav-item nav-link" href="/" onclick="navigate('/', 'home.html'); return false;">Home</a>
+      <a class="nav-item nav-link" href="/about" onclick="navigate('/about', 'about.html'); return false;">About</a>
+      <a class="nav-item nav-link" href="/two" onclick="navigate('/two', 'two.html'); return false;">Two</a>
+    </div>
+  </nav>
+
+  <main class="container mt-4" id="app">Loading...</main>
+
+  <footer class="bg-dark text-white text-center py-3">
+    &copy; <span id="year"></span> MySite. All rights reserved.
+  </footer>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+  <script src="/js/js.js"></script>
 </body>
 </html>

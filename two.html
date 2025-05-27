@@ -1,36 +1,9 @@
 <h2>GitHub User Info Lookup</h2>
-
 <form id="githubForm">
-  <label>GitHub Username: 
+  <label>GitHub Username:
     <input type="text" id="username" required>
   </label>
   <button type="submit">Fetch Info</button>
 </form>
-
 <br>
 <textarea id="result" rows="10" cols="60" placeholder="GitHub user info will appear here..."></textarea>
-
-<script>
-document.getElementById('githubForm').addEventListener('submit', function(e) {
-  e.preventDefault();
-
-  var username = document.getElementById('username').value.trim();
-  if (!username) {
-    document.getElementById('result').value = 'Please enter a username.';
-    return;
-  }
-
-  var xhr = new XMLHttpRequest();
-  xhr.open('GET', 'https://api.github.com/users/' + encodeURIComponent(username), true);
-  xhr.onreadystatechange = function () {
-    if (xhr.readyState === 4) {
-      if (xhr.status === 200) {
-        document.getElementById('result').value = xhr.responseText;
-      } else {
-        document.getElementById('result').value = 'Error: ' + xhr.status + '\n' + xhr.responseText;
-      }
-    }
-  };
-  xhr.send();
-});
-</script>

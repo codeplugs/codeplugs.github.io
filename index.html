@@ -1,38 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Bootstrap SPA</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link
-    rel="stylesheet"
-    href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-  />
+  <meta charset="UTF-8">
+  <title>MySite</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link 
+    rel="stylesheet" 
+    href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
   <style>
-    html,
-    body {
-      height: 100%;
-    }
-    body {
-      display: flex;
-      flex-direction: column;
-    }
-    main {
-      flex: 1;
-    }
-    .nav-link.active {
-      font-weight: bold;
-      color: #fff !important;
-    }
+    html, body { height: 100%; }
+    body { display: flex; flex-direction: column; }
+    main { flex: 1; }
   </style>
 </head>
 <body>
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <a class="navbar-brand" href="#">MySite</a>
+    <a class="navbar-brand" href="/">MySite</a>
     <div class="navbar-nav">
-      <a class="nav-item nav-link" href="#" onclick="loadPage('home.html', this)">Home</a>
-      <a class="nav-item nav-link" href="#" onclick="loadPage('about.html', this)">About</a>
-      <a class="nav-item nav-link" href="#" onclick="loadPage('contact.html', this)">Contact</a>
+      <a class="nav-item nav-link" href="/" onclick="navigate('/', 'home.html'); return false;">Home</a>
+      <a class="nav-item nav-link" href="/about" onclick="navigate('/about', 'about.html'); return false;">About</a>
+      <a class="nav-item nav-link" href="/two" onclick="navigate('/two', 'two.html'); return false;">Two</a>
     </div>
   </nav>
 
@@ -42,6 +29,9 @@
     &copy; <span id="year"></span> MySite. All rights reserved.
   </footer>
 
-  <script src="js/router.js"></script>
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+  <script src="/js/js.js"></script>
 </body>
 </html>
