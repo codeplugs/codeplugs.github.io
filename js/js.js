@@ -1,50 +1,35 @@
-const routes = {
-  '/': 'home.html',
-  '/about': 'about.html',
-  '/contact': 'contact.html',
-  '/one': 'one.html',
-  '/two': 'two.html'
-};
+function navigate(page) {
+  history.pushState({ page }, '', '/'); // keep URL at root (or add hash if you want)
+  loadPage(page);
+}
 
-async function loadPage(file) {
+async function loadPage(page) {
+  const app = document.getElementById('app');
   try {
-    const res = await fetch(file);
+    const res = await fetch('pages/' + page);
+    if (!res.ok) throw new Error('Page not found');
     const html = await res.text();
-    const app = document.getElementById('app');
     app.innerHTML = html;
 
-    // Execute any inline scripts from the loaded page
-    app.querySelectorAll('script').forEach(oldScript => {
-      const newScript = document.createElement('script');
-      if (oldScript.src) {
-        newScript.src = oldScript.src;
-      } else {
-        newScript.textContent = oldScript.textContent;
-      }
-      document.body.appendChild(newScript);
-      document.body.removeChild(newScript);
-    });
-
-    // Initialize page-specific JS
-    if (file === 'one.html') initOnePage();
-    if (file === 'two.html') setupTwoPage();
+    // Run page-specific setup if needed
+    if (page === 'one.html') initOnePage();
+    if (page === 'two.html') setupTwoPage();
   } catch {
-    document.getElementById('app').innerHTML = '<h1>Page not found</h1>';
+    app.innerHTML = '<h1>Page not found</h1>';
   }
 }
 
-function router() {
-  const hash = location.hash || '#/';
-  const path = hash.slice(1);
-  const file = routes[path] || 'home.html';
-  loadPage(file);
-}
+window.addEventListener('popstate', (e) => {
+  const page = e.state?.page || 'home.html';
+  loadPage(page);
+});
 
-window.addEventListener('hashchange', router);
-window.addEventListener('load', router);
+window.addEventListener('DOMContentLoaded', () => {
+  // Load home page on initial load
+  loadPage('home.html');
+});
 
-
-// Your page init functions (copy from your previous js)
+// Example page scripts (adapt to your code)
 
 function initOnePage() {
   const form = document.getElementById("jaxloads");

@@ -1,29 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>MySite</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link 
-    rel="stylesheet" 
-    href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-  <style>
-    html, body { height: 100%; }
-    body { display: flex; flex-direction: column; }
-    main { flex: 1; }
-  </style>
+  <meta charset="UTF-8" />
+  <title>My SPA</title>
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet" />
 </head>
 <body>
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-  <a class="navbar-brand" href="#">MySite</a>
-  <div class="navbar-nav">
-    <a class="nav-item nav-link" href="#/">Home</a>
-    <a class="nav-item nav-link" href="#/about">About</a>
-    <a class="nav-item nav-link" href="#/contact">Contact</a>
-    <a class="nav-item nav-link" href="#/one">Ytconvert</a>
-    <a class="nav-item nav-link" href="#/two">Test</a>
-  </div>
-</nav>
+    <a class="navbar-brand" href="#">MySite</a>
+    <div class="navbar-nav">
+      <a href="#" onclick="navigate('home.html')" class="nav-item nav-link">Home</a>
+      <a href="#" onclick="navigate('about.html')" class="nav-item nav-link">About</a>
+      <a href="#" onclick="navigate('contact.html')" class="nav-item nav-link">Contact</a>
+      <a href="#" onclick="navigate('one.html')" class="nav-item nav-link">Ytconvert</a>
+      <a href="#" onclick="navigate('two.html')" class="nav-item nav-link">Test</a>
+    </div>
+  </nav>
 
   <main class="container mt-4" id="app">Loading...</main>
 
@@ -34,6 +26,6 @@
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
   </script>
-  <script src="/js/js.js"></script>
+  <script src="js/js.js"></script>
 </body>
 </html>
