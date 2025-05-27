@@ -3,6 +3,7 @@ const routes = {
   '/about': 'about.html',
   '/contact': 'contact.html',
 '/one': 'one.html'
+'/two: 'two.html
 };
 
 async function router() {
