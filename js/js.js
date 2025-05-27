@@ -26,7 +26,8 @@ window.addEventListener('popstate', (e) => {
 
 window.addEventListener('DOMContentLoaded', () => {
   const savedPage = sessionStorage.getItem('currentPage') || 'home.html';
-  history.replaceState({ page: savedPage }, '', '/');
+  const urlPath = '/' + savedPage.replace('.html', ''); // e.g. '/one' from 'one.html'
+  history.replaceState({ page: savedPage }, '', urlPath); // Set correct path in URL
   loadPage(savedPage);
 });
 
