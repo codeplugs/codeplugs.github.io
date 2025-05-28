@@ -51,6 +51,10 @@ window.addEventListener('DOMContentLoaded', () => {
 function initOnePage() {
   const form = document.getElementById("jaxloads");
   const log = document.getElementById("log_result");
+  const formatSelect = document.getElementById("format_select");
+  const submitButton = form?.querySelector("button[type='submit']");
+  const yturlInput = document.getElementById("yt_url");
+  const bgCheckbox = document.getElementById("background");
 
   // Auto-load from ytid if exists
   const urlParams = new URLSearchParams(window.location.search);
@@ -58,6 +62,12 @@ const ytid = urlParams.get("ytid"); // Only use URL param directly
 if (ytid && log) {
   log.value = "Loading...\n";
   startPollingLog(ytid, log);
+
+// ✅ Disable inputs
+    if (yturlInput) yturlInput.disabled = true;
+    if (formatSelect) formatSelect.disabled = true;
+    if (submitButton) submitButton.disabled = true;
+    if (bgCheckbox) bgCheckbox.disabled = true;
 }
 
 
@@ -65,6 +75,7 @@ if (ytid && log) {
 
   form.addEventListener("submit", function (e) {
     e.preventDefault();
+
 
     const yturl = document.getElementById("yt_url").value.trim();
     const format = document.getElementById("format_select").value;
