@@ -28,23 +28,22 @@ window.addEventListener('DOMContentLoaded', () => {
   const urlParams = new URLSearchParams(window.location.search);
   const ytid = urlParams.get('ytid');
 
-  let pageToLoad = 'home.html'; // default
+  let pageToLoad;
 
   if (ytid) {
-    // Auto-load one.html if ytid is present in URL
     pageToLoad = 'one.html';
     sessionStorage.setItem('ytid', ytid);
-    sessionStorage.setItem('currentPage', pageToLoad); // ✅ Save the current page
+    sessionStorage.setItem('currentPage', pageToLoad);
+    const urlPath = '/' + pageToLoad.replace('.html', '');
+    history.replaceState({ page: pageToLoad }, '', `${urlPath}?ytid=${ytid}`);
   } else {
-    // Fallback to saved page if exists
     pageToLoad = sessionStorage.getItem('currentPage') || 'home.html';
+    const urlPath = '/' + pageToLoad.replace('.html', '');
+    history.replaceState({ page: pageToLoad }, '', urlPath);
   }
 
-  const urlPath = '/' + pageToLoad.replace('.html', '');
-  history.replaceState({ page: pageToLoad }, '', urlPath);
   loadPage(pageToLoad);
 });
-
 
 // Example page scripts (adapt to your code)
 
