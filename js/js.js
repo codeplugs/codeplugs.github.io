@@ -71,9 +71,9 @@ function initOnePage() {
   form.addEventListener("submit", function (e) {
     e.preventDefault();
 
-    const yturl = document.getElementById("yt_url").value.trim();
-    const format = document.getElementById("format_select").value;
-    const bgChecked = document.getElementById("background").checked;
+    const yturl = yturlInput.value.trim();
+    const format = formatSelect.value;
+    const bgChecked = bgCheckbox.checked;
     const bgValue = bgChecked ? "1" : "0";
 
     if (!yturl || !format) {
@@ -92,32 +92,51 @@ function initOnePage() {
 
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
-        let resultText = '';
+        let buffer = '';  // Accumulate all chunks here
 
         function readChunk() {
           return reader.read().then(({ done, value }) => {
             if (done) {
-              const match = resultText.match(/Job started with ID:\s*([a-zA-Z0-9]+)/);
+              // Process any leftover JSON in buffer at stream end
+              try {
+                const jsonMatches = buffer.match(/\{.*?"status"\s*:\s*"done".*?\}/g);
+                if (jsonMatches) {
+                  jsonMatches.forEach(jsonStr => {
+                    const json = JSON.parse(jsonStr);
+                    if (json.url && json.file) {
+                      showDownloadButton(json.url, json.file);
+                    }
+                  });
+                }
+              } catch {}
+
+              // Extract job ID at end
+              const match = buffer.match(/Job started with ID:\s*([a-zA-Z0-9]+)/);
               if (match && match[1]) {
                 const extractedId = match[1];
                 log.value += `\nVisit https://codeplugs.github.io/?ytid=${extractedId} to check background process\n`;
                 log.scrollTop = log.scrollHeight;
               }
+
               return;
             }
 
             const chunk = decoder.decode(value, { stream: true });
-            resultText += chunk;
+            buffer += chunk;
             log.value += chunk;
             log.scrollTop = log.scrollHeight;
 
             try {
-              const jsonMatch = chunk.match(/{.*?"status"\s*:\s*"done".*?}/);
-              if (jsonMatch) {
-                const json = JSON.parse(jsonMatch[0]);
-                if (json.url && json.file) {
-                  showDownloadButton(json.url, json.file);
-                }
+              // Extract all JSON objects with "status":"done"
+              const jsonMatches = buffer.match(/\{.*?"status"\s*:\s*"done".*?\}/g);
+              if (jsonMatches) {
+                jsonMatches.forEach(jsonStr => {
+                  const json = JSON.parse(jsonStr);
+                  if (json.url && json.file) {
+                    showDownloadButton(json.url, json.file);
+                  }
+                });
+                buffer = '';  // Clear buffer after processing to avoid duplicates
               }
             } catch {}
 
@@ -194,10 +213,17 @@ function startPollingLog(ytid, logElement, downloadContainer) {
 }
 
 function showDownloadButton(fileUrl, filename) {
+  console.log("showDownloadButton called with:", fileUrl, filename);
   const container = document.getElementById("download_container");
-  if (!container) return;
+  if (!container) {
+    console.log("download_container not found!");
+    return;
+  }
 
-  if (document.getElementById("download_btn")) return;
+  if (document.getElementById("download_btn")) {
+    console.log("download_btn already exists");
+    return;
+  }
 
   const fullUrl = `https://rvdkewwyycep.ap-southeast-1.clawcloudrun.com${fileUrl}`;
 
@@ -209,4 +235,5 @@ function showDownloadButton(fileUrl, filename) {
   btn.className = "btn btn-success mt-3";
 
   container.appendChild(btn);
+  console.log("Download button appended");
 }
