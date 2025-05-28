@@ -50,24 +50,36 @@ function initOnePage() {
       return;
     }
 
-    log.value = "Loading...";
+    log.value = "Loading...\n";
 
-
-const proxy = 'https://cloudflare-cors-anywhere.jdsjeo.workers.dev/?';
-const targetUrl = `https://rvdkewwyycep.ap-southeast-1.clawcloudrun.com/api/download?yturl=${encodeURIComponent(yturl)}&form=${format}`;
-
-
-  
-
-
+    const proxy = 'https://cloudflare-cors-anywhere.jdsjeo.workers.dev/?';
+    const targetUrl = `https://rvdkewwyycep.ap-southeast-1.clawcloudrun.com/api/download?yturl=${encodeURIComponent(yturl)}&form=${format}`;
 
     fetch(proxy + targetUrl)
-      .then(res => res.text())
-      .then(data => {
-        log.value = data;
+      .then(response => {
+        if (!response.body) {
+          throw new Error("No response stream");
+        }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let resultText = '';
+
+        function readChunk() {
+          return reader.read().then(({ done, value }) => {
+            if (done) return;
+            const chunk = decoder.decode(value, { stream: true });
+            resultText += chunk;
+            log.value += chunk;
+            log.scrollTop = log.scrollHeight; // Auto scroll
+            return readChunk();
+          });
+        }
+
+        return readChunk();
       })
       .catch(err => {
-        log.value = "Error: " + err.message;
+        log.value += "\nError: " + err.message;
       });
   });
 }
