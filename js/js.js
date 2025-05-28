@@ -1,5 +1,6 @@
 ﻿function navigate(page) {
   history.pushState({ page }, '', '/');
+  sessionStorage.removeItem('ytid')
   sessionStorage.setItem('currentPage', page); // Store page
   loadPage(page);
 }
