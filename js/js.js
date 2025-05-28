@@ -24,24 +24,23 @@ window.addEventListener('popstate', (e) => {
   loadPage(page);
 });
 
+
 window.addEventListener('DOMContentLoaded', () => {
   const urlParams = new URLSearchParams(window.location.search);
   const ytid = urlParams.get('ytid');
 
-  let pageToLoad;
+  let pageToLoad = 'home.html'; // Default page
 
   if (ytid) {
     pageToLoad = 'one.html';
     sessionStorage.setItem('ytid', ytid);
     sessionStorage.setItem('currentPage', pageToLoad);
-    const urlPath = '/' + pageToLoad.replace('.html', '');
-    history.replaceState({ page: pageToLoad }, '', `${urlPath}?ytid=${ytid}`);
   } else {
     pageToLoad = sessionStorage.getItem('currentPage') || 'home.html';
-    const urlPath = '/' + pageToLoad.replace('.html', '');
-    history.replaceState({ page: pageToLoad }, '', urlPath);
   }
 
+  // Important: DO NOT modify pathname or use /one
+  // Just load the right HTML into #app
   loadPage(pageToLoad);
 });
 
