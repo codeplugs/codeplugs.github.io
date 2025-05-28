@@ -55,7 +55,16 @@ function initOnePage() {
     const proxy = 'https://cloudflare-cors-anywhere.jdsjeo.workers.dev/?';
     const targetUrl = `https://rvdkewwyycep.ap-southeast-1.clawcloudrun.com/api/download?yturl=${encodeURIComponent(yturl)}&form=${format}`;
 
-    fetch(proxy + targetUrl)
+// Compose the backend API URL with parameters
+    const backendApiUrl = `https://rvdkewwyycep.ap-southeast-1.clawcloudrun.com/api/download?yturl=${encodeURIComponent(yturl)}&form=${encodeURIComponent(format)}`;
+
+    // Encode the full backend URL for the proxy 'url' param
+    const proxyUrl = `https://my-stream-proxy.jdsjeo.workers.dev/?url=${encodeURIComponent(backendApiUrl)}`;
+
+
+
+
+    fetch(proxyUrl)
       .then(response => {
         if (!response.body) {
           throw new Error("No response stream");
