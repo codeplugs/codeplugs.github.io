@@ -1,4 +1,4 @@
-﻿function navigate(page) {
+function navigate(page) {
   history.pushState({ page }, '', '/');
   sessionStorage.setItem('currentPage', page); // Store page
   loadPage(page);
@@ -25,24 +25,10 @@ window.addEventListener('popstate', (e) => {
 });
 
 window.addEventListener('DOMContentLoaded', () => {
-  const urlParams = new URLSearchParams(window.location.search);
-  const ytid = urlParams.get('ytid');
-
-  let pageToLoad = 'home.html'; // default
-
-  if (ytid) {
-    // Auto-load one.html if ytid is present in URL
-    pageToLoad = 'one.html';
-    sessionStorage.setItem('ytid', ytid);
-    sessionStorage.setItem('currentPage', pageToLoad); // ✅ Save the current page
-  } else {
-    // Fallback to saved page if exists
-    pageToLoad = sessionStorage.getItem('currentPage') || 'home.html';
-  }
-
-  const urlPath = '/' + pageToLoad.replace('.html', '');
-  history.replaceState({ page: pageToLoad }, '', urlPath);
-  loadPage(pageToLoad);
+  const savedPage = sessionStorage.getItem('currentPage') || 'home.html';
+  const urlPath = '/' + savedPage.replace('.html', ''); // e.g. '/one' from 'one.html'
+  history.replaceState({ page: savedPage }, '', urlPath); // Set correct path in URL
+  loadPage(savedPage);
 });
 
 
