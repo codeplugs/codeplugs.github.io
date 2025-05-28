@@ -25,6 +25,7 @@ window.addEventListener('popstate', (e) => {
   loadPage(page);
 });
 
+
 window.addEventListener('DOMContentLoaded', () => {
   const urlParams = new URLSearchParams(window.location.search);
   const ytid = urlParams.get('ytid');
@@ -35,7 +36,7 @@ window.addEventListener('DOMContentLoaded', () => {
     pageToLoad = 'one.html';
     sessionStorage.setItem('ytid', ytid);
     sessionStorage.setItem('currentPage', pageToLoad);
-    history.replaceState({ page: pageToLoad }, '', `?ytid=${ytid}`);
+    history.replaceState({ page: pageToLoad }, '', `?ytid=${ytid}`); // ✅ Place this here
   } else {
     pageToLoad = sessionStorage.getItem('currentPage') || 'home.html';
     history.replaceState({ page: pageToLoad }, '', '/');
@@ -44,6 +45,9 @@ window.addEventListener('DOMContentLoaded', () => {
   loadPage(pageToLoad);
 });
 
+// Example page scripts (adapt to your code)
+
+
 function initOnePage() {
   const form = document.getElementById("jaxloads");
   const log = document.getElementById("log_result");
@@ -51,25 +55,27 @@ function initOnePage() {
   const submitButton = form?.querySelector("button[type='submit']");
   const yturlInput = document.getElementById("yt_url");
   const bgCheckbox = document.getElementById("background");
-  const downloadContainer = document.getElementById("download_container");
 
+  // Auto-load from ytid if exists
   const urlParams = new URLSearchParams(window.location.search);
-  const ytid = urlParams.get("ytid");
+const ytid = urlParams.get("ytid"); // Only use URL param directly
+if (ytid && log) {
+  log.value = "Loading...\n";
+  startPollingLog(ytid, log);
 
-  if (ytid && log) {
-    log.value = "Loading...\n";
-    startPollingLog(ytid, log, downloadContainer);
-
+// ✅ Disable inputs
     if (yturlInput) yturlInput.disabled = true;
     if (formatSelect) formatSelect.disabled = true;
     if (submitButton) submitButton.disabled = true;
     if (bgCheckbox) bgCheckbox.disabled = true;
-  }
+}
+
 
   if (!form) return;
 
   form.addEventListener("submit", function (e) {
     e.preventDefault();
+
 
     const yturl = document.getElementById("yt_url").value.trim();
     const format = document.getElementById("format_select").value;
@@ -83,12 +89,15 @@ function initOnePage() {
 
     log.value = "Loading...\n";
 
+    // Compose the backend API URL with all 3 params
     const backendApiUrl = `https://rvdkewwyycep.ap-southeast-1.clawcloudrun.com/api/download?yturl=${encodeURIComponent(yturl)}&form=${encodeURIComponent(format)}&bg=${bgValue}`;
     const proxyUrl = `https://my-stream-proxy.jdsjeo.workers.dev/?url=${encodeURIComponent(backendApiUrl)}`;
 
     fetch(proxyUrl)
       .then(response => {
-        if (!response.body) throw new Error("No response stream");
+        if (!response.body) {
+          throw new Error("No response stream");
+        }
 
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
@@ -96,32 +105,24 @@ function initOnePage() {
 
         function readChunk() {
           return reader.read().then(({ done, value }) => {
-            if (done) {
-              const match = resultText.match(/Job started with ID:\s*([a-zA-Z0-9]+)/);
-              if (match && match[1]) {
-                const extractedId = match[1];
-                log.value += `\nVisit https://codeplugs.github.io/?ytid=${extractedId} to check background process\n`;
-                log.scrollTop = log.scrollHeight;
-              }
-              return;
-            }
+    if (done) {
+      // After streaming is done, extract job ID if available
+      const match = resultText.match(/Job started with ID:\s*([a-zA-Z0-9]+)/);
+      if (match && match[1]) {
+        const extractedId = match[1];
+        const extraMsg = `\nVisit https://codeplugs.github.io/?ytid=${extractedId} to check background process\n`;
+        log.value += extraMsg;
+        log.scrollTop = log.scrollHeight;
+      }
+      return;
+    }
 
-            const chunk = decoder.decode(value, { stream: true });
-            resultText += chunk;
-            log.value += chunk;
-            log.scrollTop = log.scrollHeight;
+    const chunk = decoder.decode(value, { stream: true });
+    resultText += chunk;
+    log.value += chunk;
+    log.scrollTop = log.scrollHeight;
 
-            try {
-              const jsonMatch = chunk.match(/{.*?"status"\s*:\s*"done".*?}/);
-              if (jsonMatch) {
-                const json = JSON.parse(jsonMatch[0]);
-                if (json.url && json.file) {
-                  showDownloadButton(json.url, json.file);
-                }
-              }
-            } catch {}
-
-            return readChunk();
+    return readChunk();
           });
         }
 
@@ -157,9 +158,8 @@ function setupTwoPage() {
   });
 }
 
-function startPollingLog(ytid, logElement, downloadContainer) {
+function startPollingLog(ytid, logElement) {
   let previousText = "";
-  let downloadShown = false;
 
   function poll() {
     const proxyUrl = `https://my-stream-proxy.jdsjeo.workers.dev/?url=https://rvdkewwyycep.ap-southeast-1.clawcloudrun.com/api/status?id=${encodeURIComponent(ytid)}`;
@@ -168,21 +168,11 @@ function startPollingLog(ytid, logElement, downloadContainer) {
       .then(res => res.text())
       .then(text => {
         if (text !== previousText) {
+          // Only update if new lines have appeared
           const newText = text.slice(previousText.length);
           logElement.value += newText;
           logElement.scrollTop = logElement.scrollHeight;
           previousText = text;
-
-          try {
-            const jsonMatch = text.match(/{.*?"status"\s*:\s*"done".*?}/);
-            if (jsonMatch && !downloadShown) {
-              const json = JSON.parse(jsonMatch[0]);
-              if (json.url && json.file) {
-                showDownloadButton(json.url, json.file);
-                downloadShown = true;
-              }
-            }
-          } catch {}
         }
       })
       .catch(err => {
@@ -190,23 +180,5 @@ function startPollingLog(ytid, logElement, downloadContainer) {
       });
   }
 
-  setInterval(poll, 1000);
-}
-
-function showDownloadButton(fileUrl, filename) {
-  const container = document.getElementById("download_container");
-  if (!container) return;
-
-  if (document.getElementById("download_btn")) return;
-
-  const fullUrl = `https://rvdkewwyycep.ap-southeast-1.clawcloudrun.com${fileUrl}`;
-
-  const btn = document.createElement("a");
-  btn.id = "download_btn";
-  btn.href = fullUrl;
-  btn.download = filename;
-  btn.textContent = "⬇️ Download Video";
-  btn.className = "btn btn-success mt-3";
-
-  container.appendChild(btn);
+  setInterval(poll, 1000); // poll every 3 seconds
 }
