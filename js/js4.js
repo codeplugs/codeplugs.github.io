@@ -51,9 +51,8 @@ function initOnePage() {
   const form = document.getElementById("jaxloads");
   const log = document.getElementById("log_result");
 
-  // Get ytid from session or URL
+  // Auto-load from ytid if exists
   const ytid = sessionStorage.getItem("ytid") || new URLSearchParams(window.location.search).get("ytid");
-
   if (ytid && log) {
     log.value = "Loading...\n";
 
@@ -64,27 +63,23 @@ function initOnePage() {
         if (!response.body) throw new Error("No response stream");
 
         const reader = response.body.getReader();
-        const decoder = new TextDecoder("utf-8");
-        let appended = false;
+        const decoder = new TextDecoder();
+        let resultText = '';
 
         function readChunk() {
           return reader.read().then(({ done, value }) => {
             if (done) return;
 
             const chunk = decoder.decode(value, { stream: true });
-            log.value += chunk;
-            log.scrollTop = log.scrollHeight;
+    resultText += chunk;
+    log.value += chunk;
+    log.scrollTop = log.scrollHeight;
 
-            // Detect and append extra link once
-            const jobIdMatch = chunk.match(/ID:\s*([a-z0-9\-]+)/i);
-            if (jobIdMatch && !appended) {
-              const jobId = jobIdMatch[1];
-              const extra = `\n➡ Visit live: https://codeplugs.github.io/?ytid=${jobId}\n`;
-              log.value += extra;
-              log.scrollTop = log.scrollHeight;
-              appended = true;
-            }
-
+    // ✅ Optional: Stop streaming once a "done" signal is found
+    if (/done|complete|finished|==END==/i.test(chunk)) {
+      log.value += "\nStream ended.";
+      return; // Stop reading
+    }
             return readChunk();
           });
         }
@@ -96,6 +91,7 @@ function initOnePage() {
       });
   }
 
+
   if (!form) return;
 
   form.addEventListener("submit", function (e) {
@@ -103,7 +99,8 @@ function initOnePage() {
 
     const yturl = document.getElementById("yt_url").value.trim();
     const format = document.getElementById("format_select").value;
-    const background = document.getElementById("background")?.checked ? 1 : 0;
+    const bgChecked = document.getElementById("background").checked;
+    const bgValue = bgChecked ? "1" : "0";
 
     if (!yturl || !format) {
       log.value = "Please enter both URL and format.";
@@ -112,35 +109,40 @@ function initOnePage() {
 
     log.value = "Loading...\n";
 
-    const backendApiUrl = `https://rvdkewwyycep.ap-southeast-1.clawcloudrun.com/api/download?yturl=${encodeURIComponent(yturl)}&form=${encodeURIComponent(format)}&bg=${background}`;
+    // Compose the backend API URL with all 3 params
+    const backendApiUrl = `https://rvdkewwyycep.ap-southeast-1.clawcloudrun.com/api/download?yturl=${encodeURIComponent(yturl)}&form=${encodeURIComponent(format)}&bg=${bgValue}`;
     const proxyUrl = `https://my-stream-proxy.jdsjeo.workers.dev/?url=${encodeURIComponent(backendApiUrl)}`;
 
     fetch(proxyUrl)
       .then(response => {
-        if (!response.body) throw new Error("No response stream");
+        if (!response.body) {
+          throw new Error("No response stream");
+        }
 
         const reader = response.body.getReader();
-        const decoder = new TextDecoder("utf-8");
-        let appended = false;
+        const decoder = new TextDecoder();
+        let resultText = '';
 
         function readChunk() {
           return reader.read().then(({ done, value }) => {
-            if (done) return;
+    if (done) {
+      // After streaming is done, extract job ID if available
+      const match = resultText.match(/Job started with ID:\s*([a-zA-Z0-9]+)/);
+      if (match && match[1]) {
+        const extractedId = match[1];
+        const extraMsg = `\nVisit https://codeplugs.github.io/?ytid=${extractedId} to check background process\n`;
+        log.value += extraMsg;
+        log.scrollTop = log.scrollHeight;
+      }
+      return;
+    }
 
-            const chunk = decoder.decode(value, { stream: true });
-            log.value += chunk;
-            log.scrollTop = log.scrollHeight;
+    const chunk = decoder.decode(value, { stream: true });
+    resultText += chunk;
+    log.value += chunk;
+    log.scrollTop = log.scrollHeight;
 
-            const jobIdMatch = chunk.match(/ID:\s*([a-z0-9\-]+)/i);
-            if (jobIdMatch && !appended) {
-              const jobId = jobIdMatch[1];
-              const extra = `\n➡ Visit live: https://codeplugs.github.io/?ytid=${jobId}\n`;
-              log.value += extra;
-              log.scrollTop = log.scrollHeight;
-              appended = true;
-            }
-
-            return readChunk();
+    return readChunk();
           });
         }
 
