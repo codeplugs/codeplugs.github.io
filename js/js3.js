@@ -59,38 +59,15 @@ function initOnePage() {
     const proxyUrl = `https://my-stream-proxy.jdsjeo.workers.dev/?url=https://rvdkewwyycep.ap-southeast-1.clawcloudrun.com/api/status?id=${encodeURIComponent(ytid)}`;
 
     fetch(proxyUrl)
-      .then(response => {
-        if (!response.body) throw new Error("No response stream");
-
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-        let resultText = '';
-
-        function readChunk() {
-          return reader.read().then(({ done, value }) => {
-            if (done) return;
-
-            const chunk = decoder.decode(value, { stream: true });
-    resultText += chunk;
-    log.value += chunk;
-    log.scrollTop = log.scrollHeight;
-
-    // ✅ Optional: Stop streaming once a "done" signal is found
-    if (/done|complete|finished|==END==/i.test(chunk)) {
-      log.value += "\nStream ended.";
-      return; // Stop reading
-    }
-            return readChunk();
-          });
-        }
-
-        return readChunk();
+      .then(res => res.text())
+      .then(text => {
+        log.value = text;
+        log.scrollTop = log.scrollHeight;
       })
       .catch(err => {
-        log.value += "\nError: " + err.message;
+        log.value = "Error: " + err.message;
       });
   }
-
 
   if (!form) return;
 
