@@ -46,10 +46,9 @@ window.addEventListener('DOMContentLoaded', () => {
 
 // Example page scripts (adapt to your code)
 
-
 function initOnePage() {
   const form = document.getElementById("jaxloads");
-  const log = document.getElementById("log_result");
+  const log = document.getElementById("log_result"); // ✅ define early
 
   // Auto-load from ytid if exists
   const ytid = sessionStorage.getItem("ytid") || new URLSearchParams(window.location.search).get("ytid");
@@ -76,8 +75,6 @@ function initOnePage() {
 
     const yturl = document.getElementById("yt_url").value.trim();
     const format = document.getElementById("format_select").value;
-    const bgChecked = document.getElementById("background").checked;
-    const bgValue = bgChecked ? "1" : "0";
 
     if (!yturl || !format) {
       log.value = "Please enter both URL and format.";
@@ -86,8 +83,7 @@ function initOnePage() {
 
     log.value = "Loading...\n";
 
-    // Compose the backend API URL with all 3 params
-    const backendApiUrl = `https://rvdkewwyycep.ap-southeast-1.clawcloudrun.com/api/download?yturl=${encodeURIComponent(yturl)}&form=${encodeURIComponent(format)}&bg=${bgValue}`;
+    const backendApiUrl = `https://rvdkewwyycep.ap-southeast-1.clawcloudrun.com/api/download?yturl=${encodeURIComponent(yturl)}&form=${encodeURIComponent(format)}`;
     const proxyUrl = `https://my-stream-proxy.jdsjeo.workers.dev/?url=${encodeURIComponent(backendApiUrl)}`;
 
     fetch(proxyUrl)
@@ -102,24 +98,12 @@ function initOnePage() {
 
         function readChunk() {
           return reader.read().then(({ done, value }) => {
-    if (done) {
-      // After streaming is done, extract job ID if available
-      const match = resultText.match(/Job started with ID:\s*([a-zA-Z0-9]+)/);
-      if (match && match[1]) {
-        const extractedId = match[1];
-        const extraMsg = `\nVisit https://codeplugs.github.io/?ytid=${extractedId} to check background process\n`;
-        log.value += extraMsg;
-        log.scrollTop = log.scrollHeight;
-      }
-      return;
-    }
-
-    const chunk = decoder.decode(value, { stream: true });
-    resultText += chunk;
-    log.value += chunk;
-    log.scrollTop = log.scrollHeight;
-
-    return readChunk();
+            if (done) return;
+            const chunk = decoder.decode(value, { stream: true });
+            resultText += chunk;
+            log.value += chunk;
+            log.scrollTop = log.scrollHeight;
+            return readChunk();
           });
         }
 
@@ -130,6 +114,7 @@ function initOnePage() {
       });
   });
 }
+
 
 function setupTwoPage() {
   const form = document.getElementById('githubForm');
