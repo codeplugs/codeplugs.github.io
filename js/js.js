@@ -52,11 +52,12 @@ function initOnePage() {
   const log = document.getElementById("log_result");
 
   // Auto-load from ytid if exists
-  const ytid = sessionStorage.getItem("ytid") || new URLSearchParams(window.location.search).get("ytid");
-  if (ytid && log) {
-    log.value = "Loading...\n";
-     startPollingLog(ytid, log);
-  }
+  const urlParams = new URLSearchParams(window.location.search);
+const ytid = urlParams.get("ytid"); // Only use URL param directly
+if (ytid && log) {
+  log.value = "Loading...\n";
+  startPollingLog(ytid, log);
+}
 
 
   if (!form) return;
