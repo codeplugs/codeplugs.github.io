@@ -52,7 +52,16 @@ function initOnePage() {
 
     log.value = "Loading...";
 
-    fetch(`https://rvdkewwyycep.ap-southeast-1.clawcloudrun.com/api/download?yturl=${encodeURIComponent(yturl)}&form=${format}`)
+
+const proxy = 'https://cloudflare-cors-anywhere.jdsjeo.workers.dev/?';
+const targetUrl = `https://rvdkewwyycep.ap-southeast-1.clawcloudrun.com/api/download?yturl=${encodeURIComponent(yturl)}&form=${format}`;
+
+
+  
+
+
+
+    fetch(proxy + targetUrl)
       .then(res => res.text())
       .then(data => {
         log.value = data;
