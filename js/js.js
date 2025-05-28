@@ -29,18 +29,18 @@ window.addEventListener('DOMContentLoaded', () => {
   const urlParams = new URLSearchParams(window.location.search);
   const ytid = urlParams.get('ytid');
 
-  let pageToLoad = 'home.html'; // Default page
+  let pageToLoad = 'home.html';
 
   if (ytid) {
     pageToLoad = 'one.html';
     sessionStorage.setItem('ytid', ytid);
     sessionStorage.setItem('currentPage', pageToLoad);
+    history.replaceState({ page: pageToLoad }, '', `?ytid=${ytid}`); // ✅ Place this here
   } else {
     pageToLoad = sessionStorage.getItem('currentPage') || 'home.html';
+    history.replaceState({ page: pageToLoad }, '', '/');
   }
 
-  // Important: DO NOT modify pathname or use /one
-  // Just load the right HTML into #app
   loadPage(pageToLoad);
 });
 
