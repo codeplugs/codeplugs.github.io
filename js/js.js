@@ -48,9 +48,9 @@ window.addEventListener('DOMContentLoaded', () => {
 
 function initOnePage() {
   const form = document.getElementById("jaxloads");
+  const log = document.getElementById("log_result"); // ✅ define early
 
-
-// Auto-load from ytid if exists
+  // Auto-load from ytid if exists
   const ytid = sessionStorage.getItem("ytid") || new URLSearchParams(window.location.search).get("ytid");
   if (ytid && log) {
     log.value = "Loading...\n";
@@ -68,7 +68,6 @@ function initOnePage() {
       });
   }
 
-
   if (!form) return;
 
   form.addEventListener("submit", function (e) {
@@ -76,7 +75,6 @@ function initOnePage() {
 
     const yturl = document.getElementById("yt_url").value.trim();
     const format = document.getElementById("format_select").value;
-    const log = document.getElementById("log_result");
 
     if (!yturl || !format) {
       log.value = "Please enter both URL and format.";
@@ -85,17 +83,8 @@ function initOnePage() {
 
     log.value = "Loading...\n";
 
-    const proxy = 'https://cloudflare-cors-anywhere.jdsjeo.workers.dev/?';
-    const targetUrl = `https://rvdkewwyycep.ap-southeast-1.clawcloudrun.com/api/download?yturl=${encodeURIComponent(yturl)}&form=${format}`;
-
-// Compose the backend API URL with parameters
     const backendApiUrl = `https://rvdkewwyycep.ap-southeast-1.clawcloudrun.com/api/download?yturl=${encodeURIComponent(yturl)}&form=${encodeURIComponent(format)}`;
-
-    // Encode the full backend URL for the proxy 'url' param
     const proxyUrl = `https://my-stream-proxy.jdsjeo.workers.dev/?url=${encodeURIComponent(backendApiUrl)}`;
-
-
-
 
     fetch(proxyUrl)
       .then(response => {
@@ -113,7 +102,7 @@ function initOnePage() {
             const chunk = decoder.decode(value, { stream: true });
             resultText += chunk;
             log.value += chunk;
-            log.scrollTop = log.scrollHeight; // Auto scroll
+            log.scrollTop = log.scrollHeight;
             return readChunk();
           });
         }
@@ -125,6 +114,7 @@ function initOnePage() {
       });
   });
 }
+
 
 function setupTwoPage() {
   const form = document.getElementById('githubForm');
