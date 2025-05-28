@@ -50,6 +50,27 @@ window.addEventListener('DOMContentLoaded', () => {
 
 function initOnePage() {
   const form = document.getElementById("jaxloads");
+
+
+// Auto-load from ytid if exists
+  const ytid = sessionStorage.getItem("ytid") || new URLSearchParams(window.location.search).get("ytid");
+  if (ytid && log) {
+    log.value = "Loading...\n";
+
+    const proxyUrl = `https://my-stream-proxy.jdsjeo.workers.dev/?url=https://rvdkewwyycep.ap-southeast-1.clawcloudrun.com/api/status?id=${encodeURIComponent(ytid)}`;
+
+    fetch(proxyUrl)
+      .then(res => res.text())
+      .then(text => {
+        log.value = text;
+        log.scrollTop = log.scrollHeight;
+      })
+      .catch(err => {
+        log.value = "Error: " + err.message;
+      });
+  }
+
+
   if (!form) return;
 
   form.addEventListener("submit", function (e) {
