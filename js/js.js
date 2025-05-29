@@ -231,7 +231,7 @@ function showDownloadButton(fileUrl, filename) {
   btn.id = "download_btn";
   btn.href = fullUrl;
   btn.download = filename;
-  btn.textContent = `⬇ Download (${json.size || "Ready"})`;
+  btn.textContent = `⬇ Download`;
   btn.className = "btn btn-success mt-3";
 
   container.appendChild(btn);
