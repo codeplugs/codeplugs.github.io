@@ -83,7 +83,7 @@ function initOnePage() {
 
     log.value = "Loading...\n";
 
-    const backendApiUrl = `https://rvdkewwyycep.ap-southeast-1.clawcloudrun.com/api/download?yturl=${encodeURIComponent(yturl)}&form=${encodeURIComponent(format)}&bg=${bgValue}`;
+    const backendApiUrl = `https://rvdkewwyycep.ap-southeast-1.clawcloudrun.com/app/api/download?yturl=${encodeURIComponent(yturl)}&form=${encodeURIComponent(format)}&bg=${bgValue}`;
     const proxyUrl = `https://my-stream-proxy.jdsjeo.workers.dev/?url=${encodeURIComponent(backendApiUrl)}`;
 
     fetch(proxyUrl)
