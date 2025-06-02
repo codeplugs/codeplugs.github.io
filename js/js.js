@@ -181,7 +181,7 @@ function startPollingLog(ytid, logElement, downloadContainer) {
   let downloadShown = false;
 
   function poll() {
-    const proxyUrl = `https://my-stream-proxy.jdsjeo.workers.dev/?url=https://rvdkewwyycep.ap-southeast-1.clawcloudrun.com/api/status?id=${encodeURIComponent(ytid)}`;
+    const proxyUrl = `https://my-stream-proxy.jdsjeo.workers.dev/?url=https://rvdkewwyycep.ap-southeast-1.clawcloudrun.com/app/api/status?id=${encodeURIComponent(ytid)}`;
 
     fetch(proxyUrl)
       .then(res => res.text())
@@ -225,7 +225,7 @@ function showDownloadButton(fileUrl, filename) {
     return;
   }
 
-  const fullUrl = `https://rvdkewwyycep.ap-southeast-1.clawcloudrun.com${fileUrl}`;
+  const fullUrl = `https://rvdkewwyycep.ap-southeast-1.clawcloudrun.com/app${fileUrl}`;
 
   const btn = document.createElement("a");
   btn.id = "download_btn";
