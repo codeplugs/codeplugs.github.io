@@ -83,7 +83,7 @@ function initOnePage() {
 
     log.value = "Loading...\n";
 
-    const backendApiUrl = `http://codeplug.mooo.com/yt/api/download?yturl=${encodeURIComponent(yturl)}&form=${encodeURIComponent(format)}&bg=${bgValue}`;
+    const backendApiUrl = `http://codeplug.mooo.com/yt/download?yturl=${encodeURIComponent(yturl)}&form=${encodeURIComponent(format)}&bg=${bgValue}`;
     const proxyUrl = `https://my-stream-proxy.jdsjeo.workers.dev/?url=${encodeURIComponent(backendApiUrl)}`;
 
     fetch(proxyUrl)
