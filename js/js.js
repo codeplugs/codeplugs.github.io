@@ -181,7 +181,7 @@ function startPollingLog(ytid, logElement, downloadContainer) {
   let downloadShown = false;
 
   function poll() {
-    const proxyUrl = `https://my-stream-proxy.jdsjeo.workers.dev/?url=http://codeplug.mooo.com/yt/api/status?id=${encodeURIComponent(ytid)}`;
+    const proxyUrl = `https://my-stream-proxy.jdsjeo.workers.dev/?url=http://codeplug.mooo.com/yt/status?id=${encodeURIComponent(ytid)}`;
 
     fetch(proxyUrl)
       .then(res => res.text())
