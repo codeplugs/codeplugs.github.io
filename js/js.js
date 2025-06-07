@@ -83,7 +83,7 @@ function initOnePage() {
 
     log.value = "Loading...\n";
 
-    const backendApiUrl = `https://47.251.170.6/yt/api/download?yturl=${encodeURIComponent(yturl)}&form=${encodeURIComponent(format)}&bg=${bgValue}`;
+    const backendApiUrl = `http://codeplug.mooo.com/yt/api/download?yturl=${encodeURIComponent(yturl)}&form=${encodeURIComponent(format)}&bg=${bgValue}`;
     const proxyUrl = `https://my-stream-proxy.jdsjeo.workers.dev/?url=${encodeURIComponent(backendApiUrl)}`;
 
     fetch(proxyUrl)
@@ -181,7 +181,7 @@ function startPollingLog(ytid, logElement, downloadContainer) {
   let downloadShown = false;
 
   function poll() {
-    const proxyUrl = `https://my-stream-proxy.jdsjeo.workers.dev/?url=https://47.251.170.6/yt/api/status?id=${encodeURIComponent(ytid)}`;
+    const proxyUrl = `https://my-stream-proxy.jdsjeo.workers.dev/?url=http://codeplug.mooo.com/yt/api/status?id=${encodeURIComponent(ytid)}`;
 
     fetch(proxyUrl)
       .then(res => res.text())
@@ -225,7 +225,7 @@ function showDownloadButton(fileUrl, filename) {
     return;
   }
 
-  const fullUrl = `https://47.251.170.6/yt${fileUrl}`;
+  const fullUrl = `http://codeplug.mooo.com/yt${fileUrl}`;
 
   const btn = document.createElement("a");
   btn.id = "download_btn";
