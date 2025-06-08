@@ -225,7 +225,7 @@ function showDownloadButton(fileUrl, filename) {
     return;
   }
 
-  const fullUrl = `http://codeplug.mooo.com/yt${fileUrl}`;
+  const fullUrl = `http://codeplug.mooo.com${fileUrl}`;
 
   const btn = document.createElement("a");
   btn.id = "download_btn";
