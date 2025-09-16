@@ -163,7 +163,7 @@ function setupThreePage() {
   const downloadContainer = document.getElementById("download_container");
 
   // Ganti dengan FOLDER_ID Drive kamu
-  const PARENT_ID = "YOUR_FOLDER_ID_HERE";
+  const PARENT_ID = "";
 
   form.addEventListener("submit", async function (e) {
     e.preventDefault();
