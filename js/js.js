@@ -177,7 +177,7 @@ form.addEventListener("submit", async function (e) {
 
   try {
     const apiUrl =
-      "http://azharjdsjeo.rf.gd/upload.php?url=" +
+      "https://azharjdsjeo.rf.gd/upload.php?url=" +
       encodeURIComponent(url) +
       "&parent=" +
       encodeURIComponent(PARENT_ID);
