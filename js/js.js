@@ -15,6 +15,7 @@ async function loadPage(page) {
 
     if (page === 'one.html') initOnePage();
     if (page === 'two.html') setupTwoPage();
+    if (page === 'three.html') setupThreePage();
   } catch {
     app.innerHTML = '<h1>Page not found</h1>';
   }
