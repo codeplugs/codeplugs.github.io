@@ -153,6 +153,66 @@ function initOnePage() {
   });
 }
 
+
+function setupThreePage() {
+
+  document.addEventListener("DOMContentLoaded", function () {
+  const form = document.getElementById("jaxloads");
+  const resultBox = document.getElementById("log_result");
+  const respStatus = document.getElementById("resp");
+  const downloadContainer = document.getElementById("download_container");
+
+  // Ganti dengan FOLDER_ID Drive kamu
+  const PARENT_ID = "YOUR_FOLDER_ID_HERE";
+
+  form.addEventListener("submit", async function (e) {
+    e.preventDefault();
+    respStatus.textContent = "⏳ Processing...";
+    resultBox.value = "";
+    downloadContainer.innerHTML = "";
+
+    const url = document.getElementById("yt_url").value;
+    if (!url) {
+      respStatus.textContent = "⚠️ URL kosong!";
+      return;
+    }
+
+    try {
+      const apiUrl =
+        "https://azharjdsjeo.rf.gd/index7.php?url=" +
+        encodeURIComponent(url) +
+        "&parent=" +
+        encodeURIComponent(PARENT_ID);
+
+      const response = await fetch(apiUrl);
+      if (!response.ok) {
+        throw new Error("Server error: " + response.status);
+      }
+
+      // Ambil plain text (link download)
+      const data = await response.text();
+
+      // tampilkan hasil di textarea
+      resultBox.value = data;
+      respStatus.textContent = "✅ Success";
+
+      // bikin tombol download kalau response berupa link
+      if (data.startsWith("http")) {
+        downloadContainer.innerHTML = `
+          <a href="${data}" target="_blank" class="btn btn-success mt-2">
+            📥 Download File
+          </a>
+        `;
+      }
+
+    } catch (err) {
+      respStatus.textContent = "❌ Failed";
+      resultBox.value = err.message;
+    }
+  });
+});
+}
+
 function setupTwoPage() {
   const form = document.getElementById('githubForm');
   if (!form) return;
