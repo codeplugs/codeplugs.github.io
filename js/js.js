@@ -171,7 +171,7 @@ form.addEventListener("submit", async function (e) {
 
   const url = document.getElementById("yt_url").value.trim();
   if (!url) {
-    respStatus.textContent = "⚠️ URL kosong!";
+    respStatus.textContent = "⚠️ URL kosong!!!";
     return;
   }
 
