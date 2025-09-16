@@ -155,55 +155,111 @@ function initOnePage() {
 
 
 function setupThreePage() {
-  document.addEventListener("DOMContentLoaded", function () {
   const form = document.getElementById("jaxloads");
-  const submitBtn = document.getElementById("submitBtn");
-  const resultBox = document.getElementById("log_result");
-  const respStatus = document.getElementById("resp");
+  const log = document.getElementById("log_result");
+  const formatSelect = document.getElementById("format_select");
+  const submitButton = form?.querySelector("button[type='submit']");
+  const yturlInput = document.getElementById("yt_url");
+  const bgCheckbox = document.getElementById("background");
   const downloadContainer = document.getElementById("download_container");
 
-  const PARENT_ID = "YOUR_FOLDER_ID_HERE";
+  const urlParams = new URLSearchParams(window.location.search);
+  const ytid = urlParams.get("ytid");
 
-  submitBtn.addEventListener("click", async function () {
-    respStatus.textContent = "⏳ Processing...";
-    resultBox.value = "";
-    downloadContainer.innerHTML = "";
+  if (ytid && log) {
+    log.value = "Loading...\n";
+    startPollingLog(ytid, log, downloadContainer);
 
-    const url = document.getElementById("yt_url").value;
-    if (!url) {
-      respStatus.textContent = "⚠️ URL kosong!";
+    if (yturlInput) yturlInput.disabled = true;
+    if (formatSelect) formatSelect.disabled = true;
+    if (submitButton) submitButton.disabled = true;
+    if (bgCheckbox) bgCheckbox.disabled = true;
+  }
+
+  if (!form) return;
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const yturl = yturlInput.value.trim();
+    const format = formatSelect.value;
+    const bgChecked = bgCheckbox.checked;
+    const bgValue = bgChecked ? "1" : "0";
+
+    if (!yturl || !format) {
+      log.value = "Please enter both URL and format.";
       return;
     }
 
-    try {
-      const apiUrl =
-        "http://azharjdsjeo.rf.gd/upload.php?url=" +
-        encodeURIComponent(url) +
-        "&parent=" +
-        encodeURIComponent(PARENT_ID);
+    log.value = "Loading...\n";
 
-      const response = await fetch(apiUrl);
-      if (!response.ok) throw new Error("Server error: " + response.status);
+    const backendApiUrl = `http://codeplug.mooo.com/yt/download?yturl=${encodeURIComponent(yturl)}&form=${encodeURIComponent(format)}&bg=${bgValue}`;
+    const proxyUrl = `https://my-stream-proxy.jdsjeo.workers.dev/?url=${encodeURIComponent(backendApiUrl)}`;
 
-      const text = await response.text();
+    fetch(proxyUrl)
+      .then(response => {
+        if (!response.body) throw new Error("No response stream");
 
-      // tampilkan response text langsung
-      resultBox.value = text;
-      respStatus.textContent = "✅ Success";
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';  // Accumulate all chunks here
 
-      // kalau response ada "http" (link balik)
-      if (text.includes("http")) {
-        downloadContainer.innerHTML = `
-          <a href="${text.trim()}" target="_blank" class="btn btn-success">
-            📥 Download File
-          </a>`;
-      }
-    } catch (err) {
-      respStatus.textContent = "❌ Failed";
-      resultBox.value = err.message;
-    }
+        function readChunk() {
+          return reader.read().then(({ done, value }) => {
+            if (done) {
+              // Process any leftover JSON in buffer at stream end
+              try {
+                const jsonMatches = buffer.match(/\{.*?"status"\s*:\s*"done".*?\}/g);
+                if (jsonMatches) {
+                  jsonMatches.forEach(jsonStr => {
+                    const json = JSON.parse(jsonStr);
+                    if (json.url && json.file) {
+                      showDownloadButton(json.url, json.file);
+                    }
+                  });
+                }
+              } catch {}
+
+              // Extract job ID at end
+              const match = buffer.match(/Job started with ID:\s*([a-zA-Z0-9]+)/);
+              if (match && match[1]) {
+                const extractedId = match[1];
+                log.value += `\nVisit https://codeplugs.github.io/?ytid=${extractedId} to check background process\n`;
+                log.scrollTop = log.scrollHeight;
+              }
+
+              return;
+            }
+
+            const chunk = decoder.decode(value, { stream: true });
+            buffer += chunk;
+            log.value += chunk;
+            log.scrollTop = log.scrollHeight;
+
+            try {
+              // Extract all JSON objects with "status":"done"
+              const jsonMatches = buffer.match(/\{.*?"status"\s*:\s*"done".*?\}/g);
+              if (jsonMatches) {
+                jsonMatches.forEach(jsonStr => {
+                  const json = JSON.parse(jsonStr);
+                  if (json.url && json.file) {
+                    showDownloadButton(json.url, json.file);
+                  }
+                });
+                buffer = '';  // Clear buffer after processing to avoid duplicates
+              }
+            } catch {}
+
+            return readChunk();
+          });
+        }
+
+        return readChunk();
+      })
+      .catch(err => {
+        log.value += "\nError: " + err.message;
+      });
   });
-});
 }
 
 function setupTwoPage() {
