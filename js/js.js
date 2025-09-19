@@ -154,7 +154,45 @@ function initOnePage() {
 }
 
 
+
+
 function setupThreePage() {
+const form = document.getElementById("jaxloads");
+const resultBox = document.getElementById("log_result");
+const respStatus = document.getElementById("resp");
+const downloadContainer = document.getElementById("download_container");
+
+form.addEventListener("submit", async e=>{
+    e.preventDefault();
+    respStatus.textContent="⏳ Starting...";
+    resultBox.value="";
+    downloadContainer.innerHTML="";
+
+    const url = document.getElementById("yt_url").value.trim();
+    if(!url){ respStatus.textContent="⚠️ URL kosong"; return; }
+
+    // panggil upload.php dulu, dapat progress file
+    const apiUrl="https://my-stream-proxy.jdsjeo.workers.dev/?url=https://azharphp.wasmer.app/index.php?url="+encodeURIComponent(url);
+    const progressFile = await fetch(apiUrl).then(r=>r.text());
+    
+    respStatus.textContent="⏳ Uploading...";
+
+    // polling progress tiap 1 detik
+    const interval = setInterval(async ()=>{
+        const progress = await fetch("https://my-stream-proxy.jdsjeo.workers.dev/?url=https://azharphp.wasmer.app/progress.php?file="+encodeURIComponent(progressFile)).then(r=>r.text());
+        resultBox.value = progress;
+        if(progress.includes("DONE")){
+            clearInterval(interval);
+            respStatus.textContent="✅ Selesai";
+            downloadContainer.innerHTML = `<a href="https://drive.google.com/drive/folders/YOUR_FOLDER_ID" target="_blank" class="btn btn-success">📥 Download</a>`;
+        }
+    },1000);
+});
+
+}
+
+
+function setupThreePages() {
   const form = document.getElementById("jaxloads");
 const resultBox = document.getElementById("log_result");
 const respStatus = document.getElementById("resp");
