@@ -165,7 +165,7 @@ const PARENT_ID = "";
 form.addEventListener("submit", async function (e) {
   e.preventDefault(); // cegah reload form
 
-  respStatus.textContent = "⏳ Processing...";
+  respStatus.textContent = "⏳ Processing.....";
   resultBox.value = "";
   downloadContainer.innerHTML = "";
 
