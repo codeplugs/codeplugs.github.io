@@ -156,7 +156,7 @@ function initOnePage() {
 
 
 
-function setupThreePage() {
+function setupThreePages() {
 const form = document.getElementById("jaxloads");
 const resultBox = document.getElementById("log_result");
 const respStatus = document.getElementById("resp");
@@ -192,7 +192,7 @@ form.addEventListener("submit", async e=>{
 }
 
 
-function setupThreePages() {
+function setupThreePage() {
   const form = document.getElementById("jaxloads");
 const resultBox = document.getElementById("log_result");
 const respStatus = document.getElementById("resp");
