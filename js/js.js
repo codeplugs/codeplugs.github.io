@@ -200,46 +200,29 @@ const downloadContainer = document.getElementById("download_container");
 
 const PARENT_ID = "";
 
-form.addEventListener("submit", async function (e) {
-  e.preventDefault(); // cegah reload form
+form.addEventListener("submit", async (e)=>{
+    e.preventDefault();
+    resultBox.value = "";
 
-  respStatus.textContent = "⏳ Processing.....";
-  resultBox.value = "";
-  downloadContainer.innerHTML = "";
+    const url = document.getElementById("yt_url").value.trim();
+    if(!url){ resultBox.value="URL kosong"; return; }
 
-  const url = document.getElementById("yt_url").value.trim();
-  if (!url) {
-    respStatus.textContent = "⚠️ URL kosong!!!";
-    return;
-  }
-
-  try {
-    const apiUrl =
-      "https://azharphp.wasmer.app/index.php?url=" +
-      encodeURIComponent(url) +
-      "&parent=" +
-      encodeURIComponent(PARENT_ID);
+    const apiUrl = "https://azharphp.wasmer.app/index.php?url="+encodeURIComponent(url);
 
     const response = await fetch(apiUrl);
-    if (!response.ok) throw new Error("Server error: " + response.status);
+    if(!response.ok){ resultBox.value = "Server error "+response.status; return; }
 
-    const data = await response.text();
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
 
-    resultBox.value = data;
-    respStatus.textContent = "✅ Success";
-
-    if (data.startsWith("http")) {
-      downloadContainer.innerHTML = `
-        <a href="${data}" target="_blank" class="btn btn-success mt-2">
-          📥 Download File
-        </a>
-      `;
+    while(true){
+        const {done,value} = await reader.read();
+        if(done) break;
+        resultBox.value += decoder.decode(value,{stream:true});
+        resultBox.scrollTop = resultBox.scrollHeight;
     }
-  } catch (err) {
-    respStatus.textContent = "❌ Failed";
-    resultBox.value = err.message;
-  }
 });
+
 }
 
 function setupTwoPage() {
