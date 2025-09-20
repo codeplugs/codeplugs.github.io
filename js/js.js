@@ -215,7 +215,7 @@ form.addEventListener("submit", async function (e) {
 
   try {
     const apiUrl =
-      "https://my-stream-proxy.jdsjeo.workers.dev/?url=https://azharphp.wasmer.app/index.php?url=" +
+      "https://azharphp.wasmer.app/index.php?url=" +
       encodeURIComponent(url) +
       "&parent=" +
       encodeURIComponent(PARENT_ID);
