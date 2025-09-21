@@ -207,7 +207,7 @@ form.addEventListener("submit", async (e)=>{
     const url = document.getElementById("yt_url").value.trim();
     if(!url){ resultBox.value="URL kosong"; return; }
 
-    const apiUrl = "https://azharphp.wasmer.app/index.php?url="+encodeURIComponent(url);
+    const apiUrl = "https://dczmedrojysm.ap-southeast-1.clawcloudrun.com/upload?url="+encodeURIComponent(url);
 
     const response = await fetch(apiUrl);
     if(!response.ok){ resultBox.value = "Server error "+response.status; return; }
