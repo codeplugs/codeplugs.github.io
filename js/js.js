@@ -191,8 +191,66 @@ form.addEventListener("submit", async e=>{
 
 }
 
-
 function setupThreePage() {
+    const form = document.getElementById("jaxloads");
+const resultBox = document.getElementById("log_result");
+const respStatus = document.getElementById("resp");
+const downloadContainer = document.getElementById("download_container");
+
+  
+form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    resultBox.value = "";
+
+    const url = document.getElementById("yt_url").value.trim();
+    if (!url) { resultBox.value = "URL kosong"; return; }
+
+    const apiUrl = "https://dczmedrojysm.ap-southeast-1.clawcloudrun.com/upload?url=" +
+                   encodeURIComponent(url);
+
+    const response = await fetch(apiUrl);
+    if (!response.ok) { resultBox.value = "Server error " + response.status; return; }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+
+    let lastTime = 0;          // waktu update terakhir (ms)
+    let lastProgress = "";     // progress terakhir yg ditampilkan
+
+    while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const text = decoder.decode(value, { stream: true });
+        const lines = text.split(/\r?\n/);
+
+        for (const line of lines) {
+            if (!line) continue;
+
+            const now = Date.now();
+
+            // cek apakah baris adalah progress download/upload
+            const isProgress = /^\[(DOWNLOAD|UPLOAD)\] Progress:/.test(line);
+
+            if (isProgress) {
+                // tampilkan hanya bila beda dari sebelumnya DAN jeda >=1 detik
+                if (line !== lastProgress && now - lastTime >= 1000) {
+                    resultBox.value += line + "\n";
+                    resultBox.scrollTop = resultBox.scrollHeight;
+                    lastTime = now;
+                    lastProgress = line;
+                }
+            } else {
+                // baris normal langsung tulis
+                resultBox.value += line + "\n";
+                resultBox.scrollTop = resultBox.scrollHeight;
+            }
+        }
+    }
+});
+}
+
+function setupThreePagess() {
   const form = document.getElementById("jaxloads");
 const resultBox = document.getElementById("log_result");
 const respStatus = document.getElementById("resp");
