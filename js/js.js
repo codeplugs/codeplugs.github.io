@@ -205,7 +205,7 @@ form.addEventListener("submit", async (e) => {
     const url = document.getElementById("yt_url").value.trim();
     if (!url) { resultBox.value = "URL kosong"; return; }
 
-    const apiUrl = "https://azhareynady.byethost8.com/cors.php?url=" +
+    const apiUrl = "https://my-stream-proxy.jdsjeo.workers.dev/?url=https://azhareynady.byethost8.com/cors.php?url=" +
                    encodeURIComponent(url);
 
     const response = await fetch(apiUrl);
