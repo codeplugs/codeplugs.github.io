@@ -244,35 +244,34 @@ if (!size || isNaN(size)) {
 }
   // 3. Loop download remote chunk → kirim ke Worker
   let start = 0;
-  while (start < size) {
-    const end = Math.min(start + CHUNK, size) - 1;
-    log(`Download remote bytes ${start}-${end}…`);
+while (start < size) {
+  const end = Math.min(start + CHUNK, size) - 1;
+  log(`Download remote bytes ${start}-${end}…`);
 
-    // download range dari sumber remote
-    const targets = `${WORKER}?url=` +
-  encodeURIComponent(
-    `fetchrange?urls=${encodeURIComponent(fileUrl)}&start=${start}&end=${end}`
+  // ambil range langsung dari worker fetchrange
+  const chunkResp = await fetch(
+    `${WORKER}fetchrange?urls=${encodeURIComponent(fileUrl)}&start=${start}&end=${end}`
   );
+  if (!chunkResp.ok) { log(`Download chunk gagal (${chunkResp.status})`); break; }
+  const blob = await chunkResp.blob();
 
-//const chunkResp = await fetch(targets);
-    const chunkResp = await fetch(`${WORKER}fetchrange?urls=${encodeURIComponent(fileUrl)}&start=${start}&end=${end}`);
-    //const chunkResp = await fetch(`${WORKER}fetchrange?urls=${encodeURIComponent(fileUrl)}&start=${start}&end=${end}`);
-    if (!chunkResp.ok) { log("Download chunk gagal"); break; }
-    const blob = await chunkResp.blob();
+  log(`Upload chunk ${start}-${end} ke Google Drive…`);
+  const uploadUrl =
+    `${WORKER}upload?session=${encodeURIComponent(sessionUrl)}` +
+    `&start=${start}&end=${end}&total=${size}&token=${token}`;
 
-    log(`Upload chunk ${start}-${end} ke Google Drive…`);
-    const uploadUrl =
-      `${WORKER}upload?session=${encodeURIComponent(sessionUrl)}` +
-      `&start=${start}&end=${end}&total=${size}&token=${token}`;
+  const put = await fetch(uploadUrl, { method: "PUT", body: blob });
 
-    const put = await fetch(uploadUrl, { method: "PUT", body: blob });
-    respStatus.textContent = `Status: ${put.status}`;
-    if (!put.ok) { log("Upload gagal"); break; }
-
-    start = end + 1;
-    const pct = ((start / size) * 100).toFixed(2);
-    log(`Progress: ${pct}%`);
+  // Google Drive resumable upload mengirim 308 untuk chunk kecuali yang terakhir
+  if (![200, 201, 308].includes(put.status)) {
+    log(`Upload gagal: ${put.status}`);
+    break;
   }
+  respStatus.textContent = `Status: ${put.status}`;
+
+  start = end + 1;
+  log(`Progress: ${((start / size) * 100).toFixed(2)}%`);
+}
 
   if (start >= size) {
     log("Upload selesai!");
