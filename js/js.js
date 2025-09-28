@@ -214,12 +214,13 @@ form.onsubmit = async (e) => {
 
 console.log(`${WORKER}/head?url=${encodeURIComponent(fileUrl)}`);
   // 1. Minta info ukuran file (HEAD)
-  const headResp = await fetch(`${WORKER}/head?url=${encodeURIComponent(fileUrl)}`);
+  const headResp = await fetch(`${WORKER}head?url=${encodeURIComponent(fileUrl)}`);
   
 
  const text = await headResp.text();      // "SIZE=10485760\nTYPE=application/octet-stream"
   const lines = text.trim().split("\n");   // pisah baris
   const info = {};
+  const size = (Number(info.SIZE)/1024/1024).toFixed(2);
   console.log(text);
   for (const line of lines) {
     const [key, val] = line.split("=");
