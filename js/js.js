@@ -275,7 +275,22 @@ while (start < size) {
 
   if (start >= size) {
     log("Upload selesai!");
+    // Ambil response terakhir dari Google Drive (pastikan put.json() sebelumnya)
+  const lastPut = await fetch(uploadUrl, { method: "PUT", body: blob });
+  let fileId;
+  try {
+    const data = await lastPut.json();
+    fileId = data.id; // file ID Google Drive
+  } catch (e) {
+    log("Gagal ambil file ID, tampilkan My Drive");
+  }
+
+  if (fileId) {
+    downloadContainer.innerHTML = `<a href="https://drive.google.com/file/d/${fileId}/view" target="_blank">Buka file di Google Drive</a>`;
+  } else {
     downloadContainer.innerHTML = `<a href="https://drive.google.com/drive/my-drive" target="_blank">Lihat di Google Drive</a>`;
+  }
+    //downloadContainer.innerHTML = `<a href="https://drive.google.com/drive/my-drive" target="_blank">Lihat di Google Drive</a>`;
   }
 };
 }
