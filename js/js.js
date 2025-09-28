@@ -211,7 +211,31 @@ form.onsubmit = async (e) => {
   if (!fileUrl) return alert("Masukkan URL file!");
 
   log(`Meminta info file dari remote…`);
- 
+
+
+  // 1. Minta info ukuran file (HEAD)
+  const headResp = await fetch(`${WORKER}/head?url=${encodeURIComponent(fileUrl)}`);
+  const headText = await headResp.text(); // hasilnya misal: "SIZE=123456\nTYPE=video/mp4"
+
+  // 2. Parse manual
+  const lines = headText.trim().split("\n");
+  const info  = {};
+  for (const line of lines) {
+    const [k, v] = line.split("=");
+    info[k.trim()] = v.trim();
+  }
+
+  const size = Number(info.SIZE || 0);
+  const type = info.TYPE || "unknown";
+  if (!size) {
+    log("Gagal mendapatkan ukuran file");
+    return;
+  }
+
+  log(`Ukuran file: ${(size / 1024 / 1024).toFixed(2)} MB`);
+  log(`Tipe: ${type}`);
+
+  
   // 2. Buat session upload di Google Drive
   log("Membuat session Google Drive…");
   const createResp = await fetch(`${WORKER}/create?name=${encodeURIComponent(name)}`);
