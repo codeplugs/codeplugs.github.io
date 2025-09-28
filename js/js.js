@@ -207,7 +207,7 @@ form.onsubmit = async (e) => {
   respStatus.textContent = "";
   downloadContainer.textContent = "";
 
-  const fileUrl = document.getElementById("remoteUrl").value.trim();
+  const fileUrl = document.getElementById("yt_url").value.trim();
   if (!fileUrl) return alert("Masukkan URL file!");
 
   log(`Meminta info file dari remote…`);
