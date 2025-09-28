@@ -249,7 +249,13 @@ if (!size || isNaN(size)) {
     log(`Download remote bytes ${start}-${end}…`);
 
     // download range dari sumber remote
-    const chunkResp = await fetch(`${WORKER}fetchrange?urls=${encodeURIComponent(fileUrl)}&start=${start}&end=${end}`);
+    const targets = `${WORKER}?url=` +
+  encodeURIComponent(
+    `https://solitary-king-6494.jdsjeo.workers.dev/fetchrange?urls=${encodeURIComponent(fileUrl)}&start=${start}&end=${end}`
+  );
+
+const chunkResp = await fetch(targets);
+    //const chunkResp = await fetch(`${WORKER}fetchrange?urls=${encodeURIComponent(fileUrl)}&start=${start}&end=${end}`);
     if (!chunkResp.ok) { log("Download chunk gagal"); break; }
     const blob = await chunkResp.blob();
 
