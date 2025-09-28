@@ -194,10 +194,10 @@ function setupThreePage() {
 const WORKER = "https://royal-shadow-5c0d.jdsjeo.workers.dev";
 const CHUNK_SIZE = 10 * 1024 * 1024; // 10MB
 
-const form = document.querySelector("form");
-const resultBox = document.getElementById("resultBox");
-const respStatus = document.getElementById("respStatus");
-const downloadContainer = document.getElementById("downloadContainer");
+const form = document.getElementById("jaxloads");
+const resultBox = document.getElementById("log_result");
+const respStatus = document.getElementById("resp");
+const downloadContainer = document.getElementById("download_container");
 
 form.onsubmit = async (e) => {
   e.preventDefault();
