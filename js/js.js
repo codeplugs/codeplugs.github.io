@@ -215,25 +215,17 @@ form.onsubmit = async (e) => {
 
   // 1. Minta info ukuran file (HEAD)
   const headResp = await fetch(`${WORKER}/head?url=${encodeURIComponent(fileUrl)}`);
-  const headText = await headResp.text(); // hasilnya misal: "SIZE=123456\nTYPE=video/mp4"
+  
 
-  // 2. Parse manual
-  const lines = headText.trim().split("\n");
-  const info  = {};
+ const text = await headResp.text();      // "SIZE=10485760\nTYPE=application/octet-stream"
+  const lines = text.trim().split("\n");   // pisah baris
+  const info = {};
   for (const line of lines) {
-    const [k, v] = line.split("=");
-    info[k.trim()] = v.trim();
+    const [key, val] = line.split("=");
+    info[key] = val;
   }
-
-  const size = Number(info.SIZE || 0);
-  const type = info.TYPE || "unknown";
-  if (!size) {
-    log("Gagal mendapatkan ukuran file");
-    return;
-  }
-
-  log(`Ukuran file: ${(size / 1024 / 1024).toFixed(2)} MB`);
-  log(`Tipe: ${type}`);
+  log("Ukuran file (MB):", (Number(info.SIZE) / 1024 / 1024).toFixed(2));
+  log("Tipe MIME:", info.TYPE);
 
   
   // 2. Buat session upload di Google Drive
