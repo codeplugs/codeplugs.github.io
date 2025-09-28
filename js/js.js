@@ -235,7 +235,11 @@ console.log(`${WORKER}/head?url=${encodeURIComponent(fileUrl)}`);
     const createResp = await fetch(`${WORKER}create?name=${encodeURIComponent(name)}`);
     const { sessionUrl, token } = await createResp.json();
     log("Session created.");
-
+console.log("DEBUG size:", size);
+if (!size || isNaN(size)) {
+  log("Size tidak valid, hentikan");
+  return;
+}
   // 3. Loop download remote chunk → kirim ke Worker
   let start = 0;
   while (start < size) {
