@@ -219,7 +219,11 @@ console.log(`${WORKER}/head?url=${encodeURIComponent(fileUrl)}`);
 
  const text = await headResp.text();      // "SIZE=10485760\nTYPE=application/octet-stream"
   const lines = text.trim().split("\n");   // pisah baris
-  const info = {};
+   const info = {};
+  text.trim().split("\n").forEach(line => {
+      const [k,v] = line.split("=");
+      if (k && v) info[k.trim().toLowerCase()] = v.trim();
+    });
   const size = (Number(info.SIZE)/1024/1024).toFixed(2);
   console.log(text);
   for (const line of lines) {
