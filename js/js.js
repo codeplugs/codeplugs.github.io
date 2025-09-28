@@ -211,15 +211,7 @@ form.onsubmit = async (e) => {
   if (!fileUrl) return alert("Masukkan URL file!");
 
   log(`Meminta info file dari remote…`);
-  // 1. Minta info ukuran file (HEAD)
-  const headResp = await fetch(`${WORKER}/head?url=${encodeURIComponent(fileUrl)}`);
-  const headData = await headResp.text();
-  const size  = headData.size;
-  const name  = headData.name;
-  if (!size) return log("Gagal mendapatkan ukuran file");
-
-  log(`Ukuran file: ${(size/1024/1024).toFixed(2)} MB`);
-
+ 
   // 2. Buat session upload di Google Drive
   log("Membuat session Google Drive…");
   const createResp = await fetch(`${WORKER}/create?name=${encodeURIComponent(name)}`);
