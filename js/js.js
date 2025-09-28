@@ -224,7 +224,7 @@ form.onsubmit = async (e) => {
       if (!sessionId) return;
       const statusResp = await fetch(`${WORKER}/status?sessionId=${sessionId}`);
       const status = await statusResp.json();
-      progressBox.textContent = `Bytes uploaded: ${status.lastUploaded || 0}`;
+      respStatus.textContent = `Bytes uploaded: ${status.lastUploaded || 0}`;
     }, 2000);
 
   } catch (err) {
