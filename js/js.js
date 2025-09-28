@@ -226,7 +226,7 @@ console.log(`${WORKER}/head?url=${encodeURIComponent(fileUrl)}`);
     });
   const size = (Number(info.SIZE)/1024/1024).toFixed(2);
   console.log(text);
-  console.log(info);
+  console.log(info.size);
   log("Ukuran file (MB):", (Number(info.SIZE) / 1024 / 1024).toFixed(2));
   log("Tipe MIME:", info.TYPE);
 
