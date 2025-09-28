@@ -243,6 +243,7 @@ if (!size || isNaN(size)) {
   return;
 }
   // 3. Loop download remote chunk → kirim ke Worker
+  let put;
   let start = 0;
 while (start < size) {
   const end = Math.min(start + CHUNK, size) - 1;
@@ -260,7 +261,7 @@ while (start < size) {
     `${WORKER}upload?session=${encodeURIComponent(sessionUrl)}` +
     `&start=${start}&end=${end}&total=${size}&token=${token}`;
 
-  const put = await fetch(uploadUrl, { method: "PUT", body: blob });
+  put = await fetch(uploadUrl, { method: "PUT", body: blob });
 
   // Google Drive resumable upload mengirim 308 untuk chunk kecuali yang terakhir
   if (![200, 201, 308].includes(put.status)) {
@@ -276,10 +277,10 @@ while (start < size) {
   if (start >= size) {
     log("Upload selesai!");
     // Ambil response terakhir dari Google Drive (pastikan put.json() sebelumnya)
-  const lastPut = await fetch(uploadUrl, { method: "PUT", body: blob });
+  //const lastPut = await fetch(uploadUrl, { method: "PUT", body: blob });
   let fileId;
   try {
-    const data = await lastPut.json();
+    const data = await put.json();
     fileId = data.id; // file ID Google Drive
   } catch (e) {
     log("Gagal ambil file ID, tampilkan My Drive");
