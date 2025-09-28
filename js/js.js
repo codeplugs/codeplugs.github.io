@@ -194,11 +194,11 @@ function setupThreePage() {
 const WORKER = "https://royal-shadow-5c0d.jdsjeo.workers.dev";
 const CHUNK_SIZE = 10 * 1024 * 1024; // 10MB
 
- const form = document.getElementById("jaxloads");
-const resultBox = document.getElementById("log_result");
-const respStatus = document.getElementById("resp");
-const downloadContainer = document.getElementById("download_container");
-  
+const form = document.querySelector("form");
+const resultBox = document.getElementById("resultBox");
+const respStatus = document.getElementById("respStatus");
+const downloadContainer = document.getElementById("downloadContainer");
+
 form.onsubmit = async (e) => {
   e.preventDefault();
   resultBox.textContent = "";
@@ -209,7 +209,7 @@ form.onsubmit = async (e) => {
   if (!fileUrl) return alert("Masukkan URL file!");
 
   try {
-    // 1️⃣ Create upload session
+    // 1️⃣ Create session
     const createResp = await fetch(`${WORKER}/create?name=${encodeURIComponent(fileUrl.split("/").pop())}`);
     const { sessionUrl, token, sessionId } = await createResp.json();
     resultBox.textContent = `Session created: ${sessionId}`;
@@ -219,58 +219,38 @@ form.onsubmit = async (e) => {
     const headText = await headResp.text();
     const size = parseInt(headText.match(/SIZE=(\d+)/)[1]);
 
-    // 3️⃣ Start polling progress in background
-    let polling = true;
-    const pollProgress = async () => {
-      while (polling) {
-        const statusResp = await fetch(`${WORKER}/status?sessionId=${sessionId}`);
-        if (statusResp.ok) {
-          const progress = await statusResp.json();
-          const uploaded = progress.lastUploaded || 0;
-          respStatus.textContent = `Progress: ${((uploaded / size) * 100).toFixed(2)}% (${uploaded}/${size})`;
-        }
-        await new Promise(r => setTimeout(r, 2000)); // tiap 2 detik
-      }
-    };
-    pollProgress();
-
-    // 4️⃣ Upload loop
     let start = 0;
+
+    // 3️⃣ Upload loop
     while (start < size) {
       const end = Math.min(start + CHUNK_SIZE, size) - 1;
 
-      // Download remote chunk via Worker
+      // Download chunk via Worker
       const chunkResp = await fetch(`${WORKER}/fetchrange?urls=${encodeURIComponent(fileUrl)}&start=${start}&end=${end}`);
-      if (!chunkResp.ok) throw new Error(`Download chunk gagal: ${chunkResp.status}`);
-      const chunk = new Uint8Array(await chunkResp.arrayBuffer());
+      const chunk = await chunkResp.arrayBuffer();
 
-      // Upload chunk
-      const putResp = await fetch(`${WORKER}/queue`, {
+      // Upload chunk via Worker
+      const putResp = await fetch(`${WORKER}/queue?sessionUrl=${encodeURIComponent(sessionUrl)}&token=${token}&start=${start}&end=${end}&total=${size}&objId=${sessionId}`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          sessionUrl,
-          token,
-          chunk: Array.from(chunk),
-          start,
-          end,
-          total: size,
-          objId: sessionId
-        }),
+        headers: { "Content-Type": "application/octet-stream" },
+        body: chunk
       });
 
       const putStatus = await putResp.json();
-      if (putStatus.status !== 200 && putStatus.status !== 201) {
-        throw new Error(`Upload gagal: ${putStatus.status}`);
-      }
+      respStatus.textContent = `Uploaded bytes ${start}-${end}, status: ${putStatus.status}`;
 
       start = end + 1;
     }
 
-    polling = false; // stop polling
-    respStatus.textContent = `Progress: 100% (${size}/${size})`;
     downloadContainer.innerHTML = `<a href="https://drive.google.com/drive/my-drive" target="_blank">Lihat di Google Drive</a>`;
     resultBox.textContent = "Upload selesai!";
+
+    // 4️⃣ Optional: check progress
+    setInterval(async () => {
+      const statusResp = await fetch(`${WORKER}/status?sessionId=${sessionId}`);
+      const status = await statusResp.json();
+      console.log("Progress:", status.lastUploaded, "/", size);
+    }, 3000);
 
   } catch (err) {
     console.error(err);
