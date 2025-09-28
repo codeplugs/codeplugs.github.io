@@ -213,7 +213,7 @@ form.onsubmit = async (e) => {
   log(`Meminta info file dari remote…`);
   // 1. Minta info ukuran file (HEAD)
   const headResp = await fetch(`${WORKER}/head?url=${encodeURIComponent(fileUrl)}`);
-  const headData = await headResp.json();
+  const headData = await headResp.text();
   const size  = headData.size;
   const name  = headData.name;
   if (!size) return log("Gagal mendapatkan ukuran file");
