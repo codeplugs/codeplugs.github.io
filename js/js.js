@@ -196,7 +196,7 @@ const resultBox = document.getElementById("log_result");
 const respStatus = document.getElementById("resp");
 const downloadContainer = document.getElementById("download_container");
 
-const WORKER = "https://my-stream-proxy.jdsjeo.workers.dev/?url=https://solitary-king-6494.jdsjeo.workers.dev/"; // ganti sesuai Worker kamu
+const WORKER = "https://solitary-king-6494.jdsjeo.workers.dev/"; // ganti sesuai Worker kamu
 const CHUNK  = 10 * 1024 * 1024; // 10 MB
 
 const log = (msg) => { resultBox.textContent += msg + "\n"; };
@@ -251,10 +251,11 @@ if (!size || isNaN(size)) {
     // download range dari sumber remote
     const targets = `${WORKER}?url=` +
   encodeURIComponent(
-    `https://solitary-king-6494.jdsjeo.workers.dev/fetchrange?urls=${encodeURIComponent(fileUrl)}&start=${start}&end=${end}`
+    `fetchrange?urls=${encodeURIComponent(fileUrl)}&start=${start}&end=${end}`
   );
 
-const chunkResp = await fetch(targets);
+//const chunkResp = await fetch(targets);
+    const chunkResp = await fetch(`${WORKER}fetchrange?urls=${encodeURIComponent(fileUrl)}&start=${start}&end=${end}`);
     //const chunkResp = await fetch(`${WORKER}fetchrange?urls=${encodeURIComponent(fileUrl)}&start=${start}&end=${end}`);
     if (!chunkResp.ok) { log("Download chunk gagal"); break; }
     const blob = await chunkResp.blob();
