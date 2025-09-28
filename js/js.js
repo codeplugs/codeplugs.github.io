@@ -199,58 +199,33 @@ const resultBox = document.getElementById("log_result");
 const respStatus = document.getElementById("resp");
 const downloadContainer = document.getElementById("download_container");
 
+
+let sessionId = null;
+let progressInterval = null;
+
 form.onsubmit = async (e) => {
   e.preventDefault();
   resultBox.textContent = "";
-  respStatus.textContent = "";
+  progressBox.textContent = "";
   downloadContainer.textContent = "";
 
   const fileUrl = document.getElementById("yt_url").value.trim();
   if (!fileUrl) return alert("Masukkan URL file!");
 
   try {
-    // 1️⃣ Create session
-    const createResp = await fetch(`${WORKER}/create?name=${encodeURIComponent(fileUrl.split("/").pop())}`);
-    const { sessionUrl, token, sessionId } = await createResp.json();
-    resultBox.textContent = `Session created: ${sessionId}`;
+    // 1️⃣ Create session di Worker
+    const createResp = await fetch(`${WORKER}/create?fileUrl=${encodeURIComponent(fileUrl)}`);
+    const data = await createResp.json();
+    sessionId = data.sessionId;
+    resultBox.textContent = `Session ID: ${sessionId}`;
 
-    // 2️⃣ Get file size
-    const headResp = await fetch(`${WORKER}/head?url=${encodeURIComponent(fileUrl)}`);
-    const headText = await headResp.text();
-    const size = parseInt(headText.match(/SIZE=(\d+)/)[1]);
-
-    let start = 0;
-
-    // 3️⃣ Upload loop
-    while (start < size) {
-      const end = Math.min(start + CHUNK_SIZE, size) - 1;
-
-      // Download chunk via Worker
-      const chunkResp = await fetch(`${WORKER}/fetchrange?urls=${encodeURIComponent(fileUrl)}&start=${start}&end=${end}`);
-      const chunk = await chunkResp.arrayBuffer();
-
-      // Upload chunk via Worker
-      const putResp = await fetch(`${WORKER}/queue?sessionUrl=${encodeURIComponent(sessionUrl)}&token=${token}&start=${start}&end=${end}&total=${size}&objId=${sessionId}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/octet-stream" },
-        body: chunk
-      });
-
-      const putStatus = await putResp.json();
-      respStatus.textContent = `Uploaded bytes ${start}-${end}, status: ${putStatus.status}`;
-
-      start = end + 1;
-    }
-
-    downloadContainer.innerHTML = `<a href="https://drive.google.com/drive/my-drive" target="_blank">Lihat di Google Drive</a>`;
-    resultBox.textContent = "Upload selesai!";
-
-    // 4️⃣ Optional: check progress
-    setInterval(async () => {
+    // 2️⃣ Mulai polling status tiap 2 detik
+    progressInterval = setInterval(async () => {
+      if (!sessionId) return;
       const statusResp = await fetch(`${WORKER}/status?sessionId=${sessionId}`);
       const status = await statusResp.json();
-      console.log("Progress:", status.lastUploaded, "/", size);
-    }, 3000);
+      progressBox.textContent = `Bytes uploaded: ${status.lastUploaded || 0}`;
+    }, 2000);
 
   } catch (err) {
     console.error(err);
