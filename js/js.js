@@ -190,8 +190,75 @@ form.addEventListener("submit", async e=>{
 });
 
 }
-
 function setupThreePage() {
+  const form = document.getElementById("jaxloads");
+const resultBox = document.getElementById("log_result");
+const respStatus = document.getElementById("resp");
+const downloadContainer = document.getElementById("download_container");
+
+const WORKER = "https://solitary-king-6494.jdsjeo.workers.dev/"; // ganti sesuai Worker kamu
+const CHUNK  = 10 * 1024 * 1024; // 10 MB
+
+const log = (msg) => { resultBox.textContent += msg + "\n"; };
+
+form.onsubmit = async (e) => {
+  e.preventDefault();
+  resultBox.textContent = "";
+  respStatus.textContent = "";
+  downloadContainer.textContent = "";
+
+  const fileUrl = document.getElementById("remoteUrl").value.trim();
+  if (!fileUrl) return alert("Masukkan URL file!");
+
+  log(`Meminta info file dari remote…`);
+  // 1. Minta info ukuran file (HEAD)
+  const headResp = await fetch(`${WORKER}/head?url=${encodeURIComponent(fileUrl)}`);
+  const headData = await headResp.json();
+  const size  = headData.size;
+  const name  = headData.name;
+  if (!size) return log("Gagal mendapatkan ukuran file");
+
+  log(`Ukuran file: ${(size/1024/1024).toFixed(2)} MB`);
+
+  // 2. Buat session upload di Google Drive
+  log("Membuat session Google Drive…");
+  const createResp = await fetch(`${WORKER}/create?name=${encodeURIComponent(name)}`);
+  const { sessionUrl, token } = await createResp.json();
+
+  // 3. Loop download remote chunk → kirim ke Worker
+  let start = 0;
+  while (start < size) {
+    const end = Math.min(start + CHUNK, size) - 1;
+    log(`Download remote bytes ${start}-${end}…`);
+
+    // download range dari sumber remote
+    const chunkResp = await fetch(`${WORKER}/fetchrange?url=${encodeURIComponent(fileUrl)}&start=${start}&end=${end}`);
+    if (!chunkResp.ok) { log("Download chunk gagal"); break; }
+    const blob = await chunkResp.blob();
+
+    log(`Upload chunk ${start}-${end} ke Google Drive…`);
+    const uploadUrl =
+      `${WORKER}/upload?session=${encodeURIComponent(sessionUrl)}` +
+      `&start=${start}&end=${end}&total=${size}&token=${token}`;
+
+    const put = await fetch(uploadUrl, { method: "PUT", body: blob });
+    respStatus.textContent = `Status: ${put.status}`;
+    if (!put.ok) { log("Upload gagal"); break; }
+
+    start = end + 1;
+    const pct = ((start / size) * 100).toFixed(2);
+    log(`Progress: ${pct}%`);
+  }
+
+  if (start >= size) {
+    log("Upload selesai!");
+    downloadContainer.innerHTML = `<a href="https://drive.google.com/drive/my-drive" target="_blank">Lihat di Google Drive</a>`;
+  }
+};
+}
+
+
+function setupThreePagess() {
     const form = document.getElementById("jaxloads");
 const resultBox = document.getElementById("log_result");
 const respStatus = document.getElementById("resp");
