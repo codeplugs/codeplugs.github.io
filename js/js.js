@@ -224,11 +224,12 @@ console.log(`${WORKER}/head?url=${encodeURIComponent(fileUrl)}`);
       const [k,v] = line.split("=");
       if (k && v) info[k.trim().toLowerCase()] = v.trim();
     });
-  const size = (Number(info.size)/1024/1024).toFixed(2);
+  const size = Number(info.size);
+    const mime = info.type || "application/octet-stream";
   console.log(text);
   console.log(info.size);
-  log("Ukuran file (MB):", (Number(info.size) / 1024 / 1024).toFixed(2));
-  log("Tipe MIME:", info.type);
+ log(`Ukuran file: ${(size/1024/1024).toFixed(2)} MB`);
+    log(`MIME Type  : ${mime}`);
 
   
    // === 2. Buat session upload di Google Drive
