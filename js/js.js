@@ -230,10 +230,11 @@ console.log(`${WORKER}/head?url=${encodeURIComponent(fileUrl)}`);
   log("Tipe MIME:", info.TYPE);
 
   
-  // 2. Buat session upload di Google Drive
-  log("Membuat session Google Drive…");
-  const createResp = await fetch(`${WORKER}create?name=${encodeURIComponent(name)}`);
-  const { sessionUrl, token } = await createResp.text();
+   // === 2. Buat session upload di Google Drive
+    const name = fileUrl.split("/").pop() || "upload.bin";
+    const createResp = await fetch(`${WORKER}create?name=${encodeURIComponent(name)}`);
+    const { sessionUrl, token } = await createResp.json();
+    log("Session created.");
 
   // 3. Loop download remote chunk → kirim ke Worker
   let start = 0;
