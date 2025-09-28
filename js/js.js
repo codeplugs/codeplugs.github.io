@@ -215,7 +215,7 @@ form.onsubmit = async (e) => {
   // 2. Buat session upload di Google Drive
   log("Membuat session Google Drive…");
   const createResp = await fetch(`${WORKER}/create?name=${encodeURIComponent(name)}`);
-  const { sessionUrl, token } = await createResp.json();
+  const { sessionUrl, token } = await createResp.text();
 
   // 3. Loop download remote chunk → kirim ke Worker
   let start = 0;
