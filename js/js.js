@@ -232,7 +232,7 @@ console.log(`${WORKER}/head?url=${encodeURIComponent(fileUrl)}`);
   
   // 2. Buat session upload di Google Drive
   log("Membuat session Google Drive…");
-  const createResp = await fetch(`${WORKER}/create?name=${encodeURIComponent(name)}`);
+  const createResp = await fetch(`${WORKER}create?name=${encodeURIComponent(name)}`);
   const { sessionUrl, token } = await createResp.text();
 
   // 3. Loop download remote chunk → kirim ke Worker
@@ -242,13 +242,13 @@ console.log(`${WORKER}/head?url=${encodeURIComponent(fileUrl)}`);
     log(`Download remote bytes ${start}-${end}…`);
 
     // download range dari sumber remote
-    const chunkResp = await fetch(`${WORKER}/fetchrange?url=${encodeURIComponent(fileUrl)}&start=${start}&end=${end}`);
+    const chunkResp = await fetch(`${WORKER}fetchrange?url=${encodeURIComponent(fileUrl)}&start=${start}&end=${end}`);
     if (!chunkResp.ok) { log("Download chunk gagal"); break; }
     const blob = await chunkResp.blob();
 
     log(`Upload chunk ${start}-${end} ke Google Drive…`);
     const uploadUrl =
-      `${WORKER}/upload?session=${encodeURIComponent(sessionUrl)}` +
+      `${WORKER}upload?session=${encodeURIComponent(sessionUrl)}` +
       `&start=${start}&end=${end}&total=${size}&token=${token}`;
 
     const put = await fetch(uploadUrl, { method: "PUT", body: blob });
