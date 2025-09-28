@@ -206,7 +206,7 @@ let progressInterval = null;
 form.onsubmit = async (e) => {
   e.preventDefault();
   resultBox.textContent = "";
-  progressBox.textContent = "";
+  respStatus.textContent = "";
   downloadContainer.textContent = "";
 
   const fileUrl = document.getElementById("yt_url").value.trim();
