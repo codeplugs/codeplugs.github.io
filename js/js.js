@@ -220,7 +220,7 @@ form.onsubmit = async (e) => {
  const text = await headResp.text();      // "SIZE=10485760\nTYPE=application/octet-stream"
   const lines = text.trim().split("\n");   // pisah baris
   const info = {};
-  console.log(info);
+  console.log(text);
   for (const line of lines) {
     const [key, val] = line.split("=");
     info[key] = val;
