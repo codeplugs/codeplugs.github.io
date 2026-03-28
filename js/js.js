@@ -54,7 +54,7 @@ function initOnePage() {
 })
 .then(res => res.json())
 .then(data => {
-  document.getElementById("counter").textContent = data.value;
+  document.getElementById("counter").textContent = data.data.up_count;
 })
 .catch(() => {
   document.getElementById("counter").textContent = "Error loading counter";
