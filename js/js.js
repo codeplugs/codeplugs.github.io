@@ -51,7 +51,7 @@ function initOnePage() {
   .then(res => res.json())
   .then(data => {
     document.getElementById("counter").textContent =
-      "👁️ " + data.data.up_count;
+      data.data.up_count;
   });
   // backup
   const form = document.getElementById("jaxloads");
