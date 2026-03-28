@@ -47,18 +47,12 @@ window.addEventListener('DOMContentLoaded', () => {
 
 function initOnePage() {
   // new content
-  fetch("https://api.counterapi.dev/v2/aznoisi-borneos-team-3500/first-counter-3500/up", {
-  headers: {
-    "Authorization": "ut_kLOzePuY0PS4lbLCmdDSJmnQc4MQHYx0BUPjY0Sy"
-  }
-})
-.then(res => res.json())
-.then(data => {
-  document.getElementById("counter").textContent = data.data.up_count;
-})
-.catch(() => {
-  document.getElementById("counter").textContent = "Error loading counter";
-});
+  fetch("https://api.counterapi.dev/v2/aznoisi-borneos-team-3500/first-counter-3500/up")
+  .then(res => res.json())
+  .then(data => {
+    document.getElementById("counter").textContent =
+      "👁️ " + data.data.up_count;
+  });
   // backup
   const form = document.getElementById("jaxloads");
   const log = document.getElementById("log_result");
