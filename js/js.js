@@ -52,6 +52,14 @@ window.addEventListener('DOMContentLoaded', () => {
 
 
 function setupCpterminalLog() {
+  if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+
+var db = firebase.database();
+
+var devicesDiv = document.getElementById("devices");
+
 }
 function setupCpterminalLogs() {
 
