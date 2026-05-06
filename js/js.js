@@ -50,7 +50,10 @@ window.addEventListener('DOMContentLoaded', () => {
   loadPage(pageToLoad);
 });
 
+
 function setupCpterminalLog() {
+}
+function setupCpterminalLogs() {
 
  const firebaseConfig = {
     apiKey: "AIzaSyD2gcPbPhhI__mad_GsnSNVotkJZFxwyHM",
