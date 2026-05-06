@@ -152,7 +152,7 @@ db.ref("cpterminal_logs").once("value")
         devicesDiv.innerHTML = "";
 
         snapshot.forEach(function(deviceSnap) {
-
+            var data = deviceSnap.val();
             var uid = deviceSnap.key;
             var collapseId = "dev_" + uid;
             var deviceName = data.model || data.brand || uid;
@@ -217,17 +217,25 @@ function loadLogs(uid) {
         for (var i = 0; i < rows.length; i++) {
 
             var log = rows[i];
-
+          
             if (search && log.text.toLowerCase().indexOf(search) === -1) {
                 continue;
             }
+var typeClass = "";
 
+if (log.type === "INFO") typeClass = "table-info";
+else if (log.type === "ERROR") typeClass = "table-danger";
+else if (log.type === "WARN") typeClass = "table-warning";
+else if (log.type === "DEBUG") typeClass = "table-secondary";
+else typeClass = "table-dark";
+            
             var tr = document.createElement("tr");
+tr.className = typeClass;
 
-            tr.innerHTML =
-                "<td>" + log.clock + "</td>" +
-                "<td class='log-" + log.type + "'>" + log.type + "</td>" +
-                "<td>" + log.text + "</td>";
+tr.innerHTML =
+    "<td>" + log.type + "</td>" +
+    "<td>" + log.clock + "</td>" +
+    "<td>" + log.text + "</td>";
 
             tbody.appendChild(tr);
         }
