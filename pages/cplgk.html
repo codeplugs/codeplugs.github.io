@@ -36,6 +36,10 @@ body { padding:20px; }
 <div id="debug" style="background:#111;color:#ff6b6b;padding:10px;margin-bottom:10px;border:1px solid #333;font-size:13px;">
 DEBUG: waiting...
 </div>
+
+    <div id="loginStatus" style="color:#aaa;margin-bottom:10px;">
+    connecting...
+</div>
 </div>
 
 <!-- Firebase -->
@@ -237,6 +241,51 @@ document.getElementById("search").oninput = function() {
         });
     });
 };
+
+
+
+
+    var auth = firebase.auth();
+var loginStatus = document.getElementById("loginStatus");
+
+// =========================
+// AUTO LOGIN ANONYMOUS
+// =========================
+function autoLogin() {
+
+    auth.signInAnonymously()
+        .then(function(result) {
+
+            var user = result.user;
+
+            console.log("AUTO LOGIN OK:", user.uid);
+
+            loginStatus.innerHTML = "UID: " + user.uid;
+
+            startDashboard(); // 🔥 langsung start
+
+        })
+        .catch(function(error) {
+
+            console.log("LOGIN ERROR:", error);
+
+            loginStatus.innerHTML = "AUTH ERROR: " + error.message;
+        });
+}
+
+// =========================
+// STATE LISTENER
+// =========================
+auth.onAuthStateChanged(function(user) {
+
+    if (user) {
+        console.log("SESSION READY:", user.uid);
+        loginStatus.innerHTML = "UID: " + user.uid;
+        startDashboard();
+    } else {
+        autoLogin(); // 🔥 auto trigger kalau belum login
+    }
+});
 
 </script>
 
