@@ -1,19 +1,24 @@
 
 <style>
 .form-control#search {
-  background-color: #121212;
-  color: #00ff9f;
-  border: 1px solid #2a2a2a;
+  background-color: #2a2a2a;   /* dark abu ChatGPT-like */
+  color: #ffffff;
+  border: 1px solid #3a3a3a;
+  border-radius: 8px;
 }
 
+/* placeholder */
 .form-control#search::placeholder {
-  color: #666;
+  color: #8a8a8a;
 }
 
+/* focus state ala ChatGPT (soft glow, bukan neon tajam) */
 .form-control#search:focus {
-  background-color: #0f0f0f;
-  border-color: #00ff9f;
-  box-shadow: 0 0 6px rgba(0, 255, 159, 0.3);
+  background-color: #2a2a2a;
+  color: #ffffff;
+  border-color: #565869;
+  box-shadow: 0 0 0 3px rgba(88, 101, 242, 0.15);
+  outline: none;
 }
 </style>
 <div class="container-fluid">
