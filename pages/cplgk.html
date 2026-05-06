@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>CP Terminal Logs</title>
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootswatch/4.3.1/cyborg/bootstrap.min.css">
+
+<style>
+body { padding:20px; }
+
+.device-header {
+    cursor:pointer;
+    background:#222;
+    padding:10px;
+    margin-top:10px;
+    border-radius:5px;
+}
+
+.log-INFO { color:#5bc0de; }
+.log-ERROR { color:#ff6b6b; }
+.log-WARN { color:#f0ad4e; }
+.log-DEBUG { color:#aaa; }
+</style>
+</head>
+
+<body>
+
+<div class="container-fluid">
+
+<h3>CP Terminal Logs</h3>
+
+<input id="search" class="form-control mb-3" placeholder="Search logs...">
+
+<div id="devices"></div>
+
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+<!-- Bootstrap JS (WAJIB collapse) -->
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
+
+<script>
+
+/* =========================
+   FIREBASE INIT
+========================= */
+
+var firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "cpterminal-50eac.firebaseapp.com",
+    databaseURL: "https://cpterminal-50eac-default-rtdb.firebaseio.com",
+    projectId: "cpterminal-50eac"
+};
+
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+
+var db = firebase.database();
+
+var devicesDiv = document.getElementById("devices");
+
+/* =========================
+   LOAD DEVICES
+========================= */
+
+db.ref("cpterminal_logs").on("value", function(snapshot) {
+
+    console.log("DB SNAP:", snapshot.val());
+
+    devicesDiv.innerHTML = "";
+
+    snapshot.forEach(function(deviceSnap) {
+
+        var uid = deviceSnap.key;
+        console.log("DEVICE:", uid);
+
+        var collapseId = "dev_" + uid;
+
+        // HEADER
+        var header = document.createElement("div");
+        header.className = "device-header";
+        header.setAttribute("data-toggle", "collapse");
+        header.setAttribute("data-target", "#" + collapseId);
+        header.innerHTML = "📱 " + uid;
+
+        // BODY
+        var body = document.createElement("div");
+        body.className = "collapse";
+        body.id = collapseId;
+
+        var table = document.createElement("table");
+        table.className = "table table-dark table-sm";
+
+        table.innerHTML =
+            "<thead>" +
+                "<tr>" +
+                    "<th>Time</th>" +
+                    "<th>Type</th>" +
+                    "<th>Message</th>" +
+                "</tr>" +
+            "</thead>" +
+            "<tbody id='logs_" + uid + "'></tbody>";
+
+        body.appendChild(table);
+
+        devicesDiv.appendChild(header);
+        devicesDiv.appendChild(body);
+
+        loadLogs(uid);
+    });
+});
+
+/* =========================
+   LOAD LOGS
+========================= */
+
+function loadLogs(uid) {
+
+    var tbody = document.getElementById("logs_" + uid);
+
+    db.ref("cpterminal_logs/" + uid + "/logs")
+    .limitToLast(200)
+    .on("value", function(snapshot) {
+
+        var rows = [];
+
+        snapshot.forEach(function(logSnap) {
+            rows.push(logSnap.val());
+        });
+
+        rows.sort(function(a, b) {
+            return b.time - a.time;
+        });
+
+        var searchEl = document.getElementById("search");
+        var search = "";
+
+        if (searchEl && searchEl.value) {
+            search = searchEl.value.toLowerCase();
+        }
+
+        tbody.innerHTML = "";
+
+        for (var i = 0; i < rows.length; i++) {
+
+            var log = rows[i];
+
+            if (search && log.text.toLowerCase().indexOf(search) === -1) {
+                continue;
+            }
+
+            var tr = document.createElement("tr");
+
+            tr.innerHTML =
+                "<td>" + log.clock + "</td>" +
+                "<td class='log-" + log.type + "'>" + log.type + "</td>" +
+                "<td>" + log.text + "</td>";
+
+            tbody.appendChild(tr);
+        }
+    });
+}
+
+/* =========================
+   SEARCH SIMPLE (ES5 SAFE)
+========================= */
+
+document.getElementById("search").oninput = function() {
+
+    // reload all logs
+    db.ref("cpterminal_logs").once("value", function(snapshot) {
+
+        devicesDiv.innerHTML = "";
+
+        snapshot.forEach(function(deviceSnap) {
+
+            var uid = deviceSnap.key;
+            var collapseId = "dev_" + uid;
+
+            var header = document.createElement("div");
+            header.className = "device-header";
+            header.setAttribute("data-toggle", "collapse");
+            header.setAttribute("data-target", "#" + collapseId);
+            header.innerHTML = "📱 " + uid;
+
+            var body = document.createElement("div");
+            body.className = "collapse";
+            body.id = collapseId;
+
+            var table = document.createElement("table");
+            table.className = "table table-dark table-sm";
+
+            table.innerHTML =
+                "<thead><tr><th>Time</th><th>Type</th><th>Message</th></tr></thead>" +
+                "<tbody id='logs_" + uid + "'></tbody>";
+
+            body.appendChild(table);
+
+            devicesDiv.appendChild(header);
+            devicesDiv.appendChild(body);
+
+            loadLogs(uid);
+        });
+    });
+};
+
+</script>
+
+</body>
+</html>
