@@ -124,17 +124,30 @@ function startDashboard() {
     window.__started = true;
 
     console.log("DASHBOARD STARTED");
-
+db.ref("cpterminal_logs").once("value")
+.then(function(snap){
+    console.log("PROBE:", snap.val());
+})
+.catch(function(err){
+    console.log("PROBE ERROR:", err.message);
+});
     db.ref("cpterminal_logs").on("value", function(snapshot) {
 
         var debug = document.getElementById("debug");
 
-        if (!snapshot.exists()) {
-            debug.innerHTML = "⚠️ NO DATA / WRONG PATH / RULES BLOCK";
-            return;
-        }
+    console.log("RAW SNAP:", snapshot.val());
 
-        debug.innerHTML = "✅ DEVICES: " + snapshot.numChildren();
+    if (!snapshot.exists()) {
+        debug.innerHTML =
+            "❌ NO DATA / RULES BLOCK / WRONG PATH<br>" +
+            "snapshot = null";
+        return;
+    }
+
+    debug.innerHTML =
+        "✅ DATA OK<br>devices: " + snapshot.numChildren();
+
+        //debug.innerHTML = "✅ DEVICES: " + snapshot.numChildren();
 
         devicesDiv.innerHTML = "";
 
