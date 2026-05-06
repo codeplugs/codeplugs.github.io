@@ -1,9 +1,21 @@
 
-<style>.form-control#search {
-  background-color: #1e1e1e;
-  color: #fff;
-  border: 1px solid #444;
-}</style>
+<style>
+.form-control#search {
+  background-color: #121212;
+  color: #00ff9f;
+  border: 1px solid #2a2a2a;
+}
+
+.form-control#search::placeholder {
+  color: #666;
+}
+
+.form-control#search:focus {
+  background-color: #0f0f0f;
+  border-color: #00ff9f;
+  box-shadow: 0 0 6px rgba(0, 255, 159, 0.3);
+}
+</style>
 <div class="container-fluid">
 
 <h3> CP Terminal Logs</h3>
