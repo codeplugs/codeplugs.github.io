@@ -34,7 +34,11 @@ window.addEventListener('DOMContentLoaded', () => {
   let pageToLoad = 'home.html';
 
   if (ytid) {
+    if (ytid === 'example.html') {
+    pageToLoad = 'cpterminallog.html';
+  } else {
     pageToLoad = 'one.html';
+  }
     sessionStorage.setItem('ytid', ytid);
     sessionStorage.setItem('currentPage', pageToLoad);
     history.replaceState({ page: pageToLoad }, '', `?ytid=${ytid}`);
