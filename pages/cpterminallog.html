@@ -44,6 +44,237 @@
 <div id="devices"></div>
 
 </div>
+<script>
+   const firebaseConfig = {
+    apiKey: "AIzaSyD2gcPbPhhI__mad_GsnSNVotkJZFxwyHM",
+    authDomain: "cpterminal-50eac.firebaseapp.com",
+    databaseURL: "https://cpterminal-50eac-default-rtdb.firebaseio.com",
+    projectId: "cpterminal-50eac",
+    storageBucket: "cpterminal-50eac.firebasestorage.app",
+    messagingSenderId: "660197684778",
+    appId: "1:660197684778:web:677f96bf905d5f5f797553",
+    measurementId: "G-PBY1CWX2S5"
+  };
 
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+const devicesDiv = document.getElementById("devices");
+
+// =====================
+// LOAD ALL DEVICES
+// =====================
+db.ref("cpterminal_logs").on("value", snap => {
+
+    devicesDiv.innerHTML = "";
+
+    snap.forEach(deviceSnap => {
+
+        const uid = deviceSnap.key;
+        const collapseId = "dev_" + uid;
+
+        // HEADER
+        const header = document.createElement("div");
+        header.className = "device-header";
+        header.setAttribute("data-toggle","collapse");
+        header.setAttribute("data-target","#"+collapseId);
+        header.innerHTML = "📱 " + uid;
+
+        // BODY
+        const body = document.createElement("div");
+        body.className = "collapse";
+        body.id = collapseId;
+
+        const table = document.createElement("table");
+        table.className = "table table-dark table-sm";
+
+        table.innerHTML = `
+        <thead>
+            <tr>
+                <th>Time</th>
+                <th>Type</th>
+                <th>Message</th>
+            </tr>
+        </thead>
+        <tbody id="logs_${uid}"></tbody>
+        `;
+
+        body.appendChild(table);
+
+        devicesDiv.appendChild(header);
+        devicesDiv.appendChild(body);
+
+        loadLogs(uid);
+    });
+});
+
+// =====================
+// LOAD LOGS PER DEVICE
+// =====================
+function loadLogs(uid) {
+
+    const tbody = document.getElementById("logs_"+uid);
+
+    db.ref("cpterminal_logs/"+uid+"/logs")
+    .limitToLast(200)
+    .on("value", snap => {
+
+        let rows = [];
+
+        snap.forEach(logSnap => {
+            rows.push(logSnap.val());
+        });
+
+        rows.sort((a,b)=> b.time - a.time);
+
+        const search = document.getElementById("search").value.toLowerCase();
+
+        tbody.innerHTML = "";
+
+        rows.forEach(log => {
+
+            if (search && !log.text.toLowerCase().includes(search)) return;
+
+            const tr = document.createElement("tr");
+
+            tr.innerHTML = `
+                <td>${log.clock}</td>
+                <td class="log-${log.type}">${log.type}</td>
+                <td>${log.text}</td>
+            `;
+
+            tbody.appendChild(tr);
+        });
+    });
+}
+
+// =====================
+// SEARCH GLOBAL
+// =====================
+document.getElementById("search").addEventListener("input", () => {
+
+    document.querySelectorAll("[id^=logs_]").forEach(el=>{
+        const uid = el.id.replace("logs_","");
+        loadLogs(uid);
+    });
+
+});
+}
+
+function initOnePage() {
+  // new content
+  fetch("https://api.counterapi.dev/v2/aznoisi-borneos-team-3500/first-counter-3500/up")
+  .then(res => res.json())
+  .then(data => {
+    document.getElementById("counter").textContent =
+      data.data.up_count;
+  });
+  // backup
+  const form = document.getElementById("jaxloads");
+  const log = document.getElementById("log_result");
+  const formatSelect = document.getElementById("format_select");
+  const submitButton = form?.querySelector("button[type='submit']");
+  const yturlInput = document.getElementById("yt_url");
+  const bgCheckbox = document.getElementById("background");
+  const downloadContainer = document.getElementById("download_container");
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const ytid = urlParams.get("ytid");
+
+  if (ytid && log) {
+    log.value = "Loading...\n";
+    startPollingLog(ytid, log, downloadContainer);
+
+    if (yturlInput) yturlInput.disabled = true;
+    if (formatSelect) formatSelect.disabled = true;
+    if (submitButton) submitButton.disabled = true;
+    if (bgCheckbox) bgCheckbox.disabled = true;
+  }
+
+  if (!form) return;
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const yturl = yturlInput.value.trim();
+    const format = formatSelect.value;
+    const bgChecked = bgCheckbox.checked;
+    const bgValue = bgChecked ? "1" : "0";
+
+    if (!yturl || !format) {
+      log.value = "Please enter both URL and format.";
+      return;
+    }
+
+    log.value = "Loading...\n";
+
+    const backendApiUrl = `http://codeplug.mooo.com/yt/download?yturl=${encodeURIComponent(yturl)}&form=${encodeURIComponent(format)}&bg=${bgValue}`;
+    const proxyUrl = `https://my-stream-proxy.jdsjeo.workers.dev/?url=${encodeURIComponent(backendApiUrl)}`;
+
+    fetch(proxyUrl)
+      .then(response => {
+        if (!response.body) throw new Error("No response stream");
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';  // Accumulate all chunks here
+
+        function readChunk() {
+          return reader.read().then(({ done, value }) => {
+            if (done) {
+              // Process any leftover JSON in buffer at stream end
+              try {
+                const jsonMatches = buffer.match(/\{.*?"status"\s*:\s*"done".*?\}/g);
+                if (jsonMatches) {
+                  jsonMatches.forEach(jsonStr => {
+                    const json = JSON.parse(jsonStr);
+                    if (json.url && json.file) {
+                      showDownloadButton(json.url, json.file);
+                    }
+                  });
+                }
+              } catch {}
+
+              // Extract job ID at end
+              const match = buffer.match(/Job started with ID:\s*([a-zA-Z0-9]+)/);
+              if (match && match[1]) {
+                const extractedId = match[1];
+                log.value += `\nVisit https://codeplugs.github.io/?ytid=${extractedId} to check background process\n`;
+                log.scrollTop = log.scrollHeight;
+              }
+
+              return;
+            }
+
+            const chunk = decoder.decode(value, { stream: true });
+            buffer += chunk;
+            log.value += chunk;
+            log.scrollTop = log.scrollHeight;
+
+            try {
+              // Extract all JSON objects with "status":"done"
+              const jsonMatches = buffer.match(/\{.*?"status"\s*:\s*"done".*?\}/g);
+              if (jsonMatches) {
+                jsonMatches.forEach(jsonStr => {
+                  const json = JSON.parse(jsonStr);
+                  if (json.url && json.file) {
+                    showDownloadButton(json.url, json.file);
+                  }
+                });
+                buffer = '';  // Clear buffer after processing to avoid duplicates
+              }
+            } catch {}
+
+            return readChunk();
+          });
+        }
+
+        return readChunk();
+      })
+      .catch(err => {
+        log.value += "\nError: " + err.message;
+      });
+  });
+</script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
