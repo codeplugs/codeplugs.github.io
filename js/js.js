@@ -13,6 +13,7 @@ async function loadPage(page) {
     const html = await res.text();
     app.innerHTML = html;
 
+    if (page === 'cpterminallog.html') setupCpterminalLog();
     if (page === 'one.html') initOnePage();
     if (page === 'two.html') setupTwoPage();
     if (page === 'three.html') setupThreePage();
@@ -44,6 +45,9 @@ window.addEventListener('DOMContentLoaded', () => {
 
   loadPage(pageToLoad);
 });
+
+function setupCpterminalLog() {
+}
 
 function initOnePage() {
   // new content
