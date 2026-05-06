@@ -33,7 +33,9 @@ body { padding:20px; }
 <input id="search" class="form-control mb-3" placeholder="Search logs...">
 
 <div id="devices"></div>
-
+<div id="debug" style="background:#111;color:#ff6b6b;padding:10px;margin-bottom:10px;border:1px solid #333;font-size:13px;">
+DEBUG: waiting...
+</div>
 </div>
 
 <!-- Firebase -->
@@ -45,7 +47,14 @@ body { padding:20px; }
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
 
 <script>
-
+window.onerror = function(msg, url, line) {
+    var el = document.getElementById("debug");
+    if (el) {
+        el.innerHTML =
+            "❌ JS ERROR<br>" +
+            msg + "<br>Line: " + line + "<br>URL: " + url;
+    }
+};
 /* =========================
    FIREBASE INIT
 ========================= */
@@ -72,9 +81,24 @@ var devicesDiv = document.getElementById("devices");
 /* =========================
    LOAD DEVICES
 ========================= */
-
+db.ref("cpterminal_logs").on("value",
+    function(snap) {
+        // success handled above
+    },
+    function(error) {
+        var el = document.getElementById("debug");
+        el.innerHTML = "❌ FIREBASE ERROR:<br>" + error.message;
+    }
+);
 db.ref("cpterminal_logs").on("value", function(snapshot) {
+  var el = document.getElementById("debug");
 
+    if (!snapshot.exists()) {
+        el.innerHTML = "⚠️ DATABASE KOSONG / PATH SALAH";
+        return;
+    }
+
+    el.innerHTML = "✅ DATA LOADED: " + snapshot.numChildren() + " devices";
     console.log("DB SNAP:", snapshot.val());
 
     devicesDiv.innerHTML = "";
