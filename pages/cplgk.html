@@ -155,12 +155,12 @@ db.ref("cpterminal_logs").once("value")
 
             var uid = deviceSnap.key;
             var collapseId = "dev_" + uid;
-
+            var deviceName = data.model || data.brand || uid;
             var header = document.createElement("div");
             header.className = "device-header";
             header.setAttribute("data-toggle", "collapse");
             header.setAttribute("data-target", "#" + collapseId);
-            header.innerHTML = "📱 " + uid;
+            header.innerHTML = "📱 " + deviceName;
 
             var body = document.createElement("div");
             body.className = "collapse";
