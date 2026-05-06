@@ -52,6 +52,18 @@ window.addEventListener('DOMContentLoaded', () => {
 
 
 function setupCpterminalLog() {
+
+var firebaseConfig = {
+    apiKey: "AIzaSyD2gcPbPhhI__mad_GsnSNVotkJZFxwyHM",
+    authDomain: "cpterminal-50eac.firebaseapp.com",
+    databaseURL: "https://cpterminal-50eac-default-rtdb.firebaseio.com",
+    projectId: "cpterminal-50eac",
+    storageBucket: "cpterminal-50eac.firebasestorage.app",
+    messagingSenderId: "660197684778",
+    appId: "1:660197684778:web:677f96bf905d5f5f797553",
+    measurementId: "G-PBY1CWX2S5"
+};
+  
   if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
