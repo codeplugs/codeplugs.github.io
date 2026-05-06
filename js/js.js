@@ -51,6 +51,121 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 function setupCpterminalLog() {
+
+ const firebaseConfig = {
+    apiKey: "AIzaSyD2gcPbPhhI__mad_GsnSNVotkJZFxwyHM",
+    authDomain: "cpterminal-50eac.firebaseapp.com",
+    databaseURL: "https://cpterminal-50eac-default-rtdb.firebaseio.com",
+    projectId: "cpterminal-50eac",
+    storageBucket: "cpterminal-50eac.firebasestorage.app",
+    messagingSenderId: "660197684778",
+    appId: "1:660197684778:web:677f96bf905d5f5f797553",
+    measurementId: "G-PBY1CWX2S5"
+  };
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+const devicesDiv = document.getElementById("devices");
+
+// =====================
+// LOAD ALL DEVICES
+// =====================
+db.ref("cpterminal_logs").on("value", snap => {
+
+    devicesDiv.innerHTML = "";
+
+    snap.forEach(deviceSnap => {
+
+        const uid = deviceSnap.key;
+        const collapseId = "dev_" + uid;
+
+        // HEADER
+        const header = document.createElement("div");
+        header.className = "device-header";
+        header.setAttribute("data-toggle","collapse");
+        header.setAttribute("data-target","#"+collapseId);
+        header.innerHTML = "📱 " + uid;
+
+        // BODY
+        const body = document.createElement("div");
+        body.className = "collapse";
+        body.id = collapseId;
+
+        const table = document.createElement("table");
+        table.className = "table table-dark table-sm";
+
+        table.innerHTML = `
+        <thead>
+            <tr>
+                <th>Time</th>
+                <th>Type</th>
+                <th>Message</th>
+            </tr>
+        </thead>
+        <tbody id="logs_${uid}"></tbody>
+        `;
+
+        body.appendChild(table);
+
+        devicesDiv.appendChild(header);
+        devicesDiv.appendChild(body);
+
+        loadLogs(uid);
+    });
+});
+
+// =====================
+// LOAD LOGS PER DEVICE
+// =====================
+function loadLogs(uid) {
+
+    const tbody = document.getElementById("logs_"+uid);
+
+    db.ref("cpterminal_logs/"+uid+"/logs")
+    .limitToLast(200)
+    .on("value", snap => {
+
+        let rows = [];
+
+        snap.forEach(logSnap => {
+            rows.push(logSnap.val());
+        });
+
+        rows.sort((a,b)=> b.time - a.time);
+
+        const search = document.getElementById("search").value.toLowerCase();
+
+        tbody.innerHTML = "";
+
+        rows.forEach(log => {
+
+            if (search && !log.text.toLowerCase().includes(search)) return;
+
+            const tr = document.createElement("tr");
+
+            tr.innerHTML = `
+                <td>${log.clock}</td>
+                <td class="log-${log.type}">${log.type}</td>
+                <td>${log.text}</td>
+            `;
+
+            tbody.appendChild(tr);
+        });
+    });
+}
+
+// =====================
+// SEARCH GLOBAL
+// =====================
+document.getElementById("search").addEventListener("input", () => {
+
+    document.querySelectorAll("[id^=logs_]").forEach(el=>{
+        const uid = el.id.replace("logs_","");
+        loadLogs(uid);
+    });
+
+});
 }
 
 function initOnePage() {
