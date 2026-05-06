@@ -32,41 +32,33 @@ body { padding:20px; }
 
 <input id="search" class="form-control mb-3" placeholder="Search logs...">
 
-<div id="devices"></div>
+<div id="loginStatus" style="color:#aaa;margin-bottom:10px;">connecting...</div>
+
 <div id="debug" style="background:#111;color:#ff6b6b;padding:10px;margin-bottom:10px;border:1px solid #333;font-size:13px;">
 DEBUG: waiting...
 </div>
 
-    <div id="loginStatus" style="color:#aaa;margin-bottom:10px;">
-    connecting...
-</div>
+<div id="devices"></div>
+
 </div>
 
 <!-- Firebase -->
-    
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-<!-- Bootstrap JS (WAJIB collapse) -->
+
+<!-- Bootstrap -->
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
 
 <script>
-    function startDashboard() {
-window.onerror = function(msg, url, line) {
-    var el = document.getElementById("debug");
-    if (el) {
-        el.innerHTML =
-            "❌ JS ERROR<br>" +
-            msg + "<br>Line: " + line + "<br>URL: " + url;
-    }
-};
+
 /* =========================
-   FIREBASE INIT
+   FIREBASE INIT (GLOBAL)
 ========================= */
 
 var firebaseConfig = {
-  apiKey: "AIzaSyD2gcPbPhhI__mad_GsnSNVotkJZFxwyHM",
+   apiKey: "AIzaSyD2gcPbPhhI__mad_GsnSNVotkJZFxwyHM",
     authDomain: "cpterminal-50eac.firebaseapp.com",
     databaseURL: "https://cpterminal-50eac-default-rtdb.firebaseio.com",
     projectId: "cpterminal-50eac",
@@ -81,77 +73,105 @@ if (!firebase.apps.length) {
 }
 
 var db = firebase.database();
+var auth = firebase.auth();
 
 var devicesDiv = document.getElementById("devices");
+var loginStatus = document.getElementById("loginStatus");
 
 /* =========================
-   LOAD DEVICES
+   GLOBAL ERROR HANDLER
 ========================= */
-db.ref("cpterminal_logs").on("value",
-    function(snap) {
-        // success handled above
-    },
-    function(error) {
-        var el = document.getElementById("debug");
-        el.innerHTML = "❌ FIREBASE ERROR:<br>" + error.message;
+
+window.onerror = function(msg, url, line) {
+    document.getElementById("debug").innerHTML =
+        "❌ JS ERROR<br>" + msg + "<br>Line: " + line;
+};
+
+/* =========================
+   AUTH AUTO LOGIN
+========================= */
+
+function autoLogin() {
+
+    auth.signInAnonymously()
+        .then(function(res) {
+            loginStatus.innerHTML = "UID: " + res.user.uid;
+            startDashboard();
+        })
+        .catch(function(err) {
+            document.getElementById("debug").innerHTML =
+                "❌ AUTH ERROR: " + err.message;
+        });
+}
+
+auth.onAuthStateChanged(function(user) {
+
+    if (user) {
+        loginStatus.innerHTML = "UID: " + user.uid;
+        startDashboard();
+    } else {
+        autoLogin();
     }
-);
-db.ref("cpterminal_logs").on("value", function(snapshot) {
-  var el = document.getElementById("debug");
-
-    if (!snapshot.exists()) {
-        el.innerHTML = "⚠️ DATABASE KOSONG / PATH SALAH";
-        return;
-    }
-
-    el.innerHTML = "✅ DATA LOADED: " + snapshot.numChildren() + " devices";
-    console.log("DB SNAP:", snapshot.val());
-
-    devicesDiv.innerHTML = "";
-
-    snapshot.forEach(function(deviceSnap) {
-
-        var uid = deviceSnap.key;
-        console.log("DEVICE:", uid);
-
-        var collapseId = "dev_" + uid;
-
-        // HEADER
-        var header = document.createElement("div");
-        header.className = "device-header";
-        header.setAttribute("data-toggle", "collapse");
-        header.setAttribute("data-target", "#" + collapseId);
-        header.innerHTML = "📱 " + uid;
-
-        // BODY
-        var body = document.createElement("div");
-        body.className = "collapse";
-        body.id = collapseId;
-
-        var table = document.createElement("table");
-        table.className = "table table-dark table-sm";
-
-        table.innerHTML =
-            "<thead>" +
-                "<tr>" +
-                    "<th>Time</th>" +
-                    "<th>Type</th>" +
-                    "<th>Message</th>" +
-                "</tr>" +
-            "</thead>" +
-            "<tbody id='logs_" + uid + "'></tbody>";
-
-        body.appendChild(table);
-
-        devicesDiv.appendChild(header);
-        devicesDiv.appendChild(body);
-
-        loadLogs(uid);
-    });
 });
 
 /* =========================
-   LOAD LOGS
+   DASHBOARD CORE
+========================= */
+
+function startDashboard() {
+
+    if (window.__started) return;
+    window.__started = true;
+
+    console.log("DASHBOARD STARTED");
+
+    db.ref("cpterminal_logs").on("value", function(snapshot) {
+
+        var debug = document.getElementById("debug");
+
+        if (!snapshot.exists()) {
+            debug.innerHTML = "⚠️ NO DATA / WRONG PATH / RULES BLOCK";
+            return;
+        }
+
+        debug.innerHTML = "✅ DEVICES: " + snapshot.numChildren();
+
+        devicesDiv.innerHTML = "";
+
+        snapshot.forEach(function(deviceSnap) {
+
+            var uid = deviceSnap.key;
+            var collapseId = "dev_" + uid;
+
+            var header = document.createElement("div");
+            header.className = "device-header";
+            header.setAttribute("data-toggle", "collapse");
+            header.setAttribute("data-target", "#" + collapseId);
+            header.innerHTML = "📱 " + uid;
+
+            var body = document.createElement("div");
+            body.className = "collapse";
+            body.id = collapseId;
+
+            var table = document.createElement("table");
+            table.className = "table table-dark table-sm";
+
+            table.innerHTML =
+                "<thead><tr><th>Time</th><th>Type</th><th>Message</th></tr></thead>" +
+                "<tbody id='logs_" + uid + "'></tbody>";
+
+            body.appendChild(table);
+
+            devicesDiv.appendChild(header);
+            devicesDiv.appendChild(body);
+
+            loadLogs(uid);
+        });
+    });
+}
+
+/* =========================
+   LOAD LOGS PER DEVICE
 ========================= */
 
 function loadLogs(uid) {
@@ -202,92 +222,14 @@ function loadLogs(uid) {
 }
 
 /* =========================
-   SEARCH SIMPLE (ES5 SAFE)
+   SEARCH LIVE (RELOAD SIMPLE)
 ========================= */
 
 document.getElementById("search").oninput = function() {
 
-    // reload all logs
-    db.ref("cpterminal_logs").once("value", function(snapshot) {
-
-        devicesDiv.innerHTML = "";
-
-        snapshot.forEach(function(deviceSnap) {
-
-            var uid = deviceSnap.key;
-            var collapseId = "dev_" + uid;
-
-            var header = document.createElement("div");
-            header.className = "device-header";
-            header.setAttribute("data-toggle", "collapse");
-            header.setAttribute("data-target", "#" + collapseId);
-            header.innerHTML = "📱 " + uid;
-
-            var body = document.createElement("div");
-            body.className = "collapse";
-            body.id = collapseId;
-
-            var table = document.createElement("table");
-            table.className = "table table-dark table-sm";
-
-            table.innerHTML =
-                "<thead><tr><th>Time</th><th>Type</th><th>Message</th></tr></thead>" +
-                "<tbody id='logs_" + uid + "'></tbody>";
-
-            body.appendChild(table);
-
-            devicesDiv.appendChild(header);
-            devicesDiv.appendChild(body);
-
-            loadLogs(uid);
-        });
-    });
+    window.__started = false;
+    startDashboard();
 };
-    }
-
-
-
-    var auth = firebase.auth();
-var loginStatus = document.getElementById("loginStatus");
-
-// =========================
-// AUTO LOGIN ANONYMOUS
-// =========================
-function autoLogin() {
-
-    auth.signInAnonymously()
-        .then(function(result) {
-
-            var user = result.user;
-
-            console.log("AUTO LOGIN OK:", user.uid);
-
-            loginStatus.innerHTML = "UID: " + user.uid;
-
-            startDashboard(); // 🔥 langsung start
-
-        })
-        .catch(function(error) {
-
-            console.log("LOGIN ERROR:", error);
-
-            loginStatus.innerHTML = "AUTH ERROR: " + error.message;
-        });
-}
-
-// =========================
-// STATE LISTENER
-// =========================
-auth.onAuthStateChanged(function(user) {
-
-    if (user) {
-        console.log("SESSION READY:", user.uid);
-        loginStatus.innerHTML = "UID: " + user.uid;
-        startDashboard();
-    } else {
-        autoLogin(); // 🔥 auto trigger kalau belum login
-    }
-});
 
 </script>
 
