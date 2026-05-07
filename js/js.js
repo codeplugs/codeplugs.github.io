@@ -29,7 +29,7 @@ window.addEventListener('popstate', (e) => {
 
 window.addEventListener('DOMContentLoaded', () => {
   const urlParams = new URLSearchParams(window.location.search);
-  const ytid = urlParams.get('ytid');
+  /*const ytid = urlParams.get('ytid');
 
   let pageToLoad = 'home.html';
 
@@ -47,7 +47,28 @@ window.addEventListener('DOMContentLoaded', () => {
   } else {
     pageToLoad = sessionStorage.getItem('currentPage') || 'home.html';
     history.replaceState({ page: pageToLoad }, '', '/');
-  }
+  }*/
+
+
+  const ytid = urlParams.get('ytid');
+
+let pageToLoad = 'home.html';
+
+if (ytid && ytid.endsWith('.html')) {
+
+  pageToLoad = ytid;
+
+  sessionStorage.setItem('ytid', ytid);
+  sessionStorage.setItem('currentPage', pageToLoad);
+
+  history.replaceState(
+    { page: pageToLoad },
+    '',
+    `?ytid=${ytid}`
+  );
+}
+
+
 
   loadPage(pageToLoad);
 });
