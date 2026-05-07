@@ -34,8 +34,10 @@ window.addEventListener('DOMContentLoaded', () => {
   let pageToLoad = 'home.html';
 
   if (ytid) {
-    if (ytid === 'example.html') {
+    if (ytid === 'cpterminallog.html') {
     pageToLoad = 'cpterminallog.html';
+  }else if (ytid === 'onebackup.html') {
+    pageToLoad = 'onebackup.html';
   } else {
     pageToLoad = 'one.html';
   }
