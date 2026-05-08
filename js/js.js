@@ -105,28 +105,37 @@ form.addEventListener("submit", async (e) => {
 
   
 }
-    function setupCpterminalLog() {
-       const scripts = [
-  'https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js',
-  'https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js',
-  'https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js',
-  'https://gistcdn.githack.com/codeplugs/8b417db58384de1513b94f8469c46e51/raw/263c91675b87c7bdb22ed31f14ae440857c4c99b/firebaselog.js'
-];
+   let cpterminalLoaded = false;
 
-scripts.forEach(src => {
-  const script = document.createElement('script');
+function setupCpterminalLog() {
 
-  script.src = src;
-  script.async = false;
+    if (cpterminalLoaded) return;
 
-  script.onload = () => {
-    console.log(src + ' loaded');
-  };
+    cpterminalLoaded = true;
 
-  document.head.appendChild(script);
-});
+    const scripts = [
+        'https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js',
+        'https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js',
+        'https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js',
+        'https://gistcdn.githack.com/codeplugs/8b417db58384de1513b94f8469c46e51/raw/263c91675b87c7bdb22ed31f14ae440857c4c99b/firebaselog.js'
+    ];
 
-       }
+    scripts.forEach(src => {
+
+        const script = document.createElement('script');
+
+        script.src = src;
+        script.async = false;
+
+        script.onload = () => {
+            console.log(src + ' loaded');
+        };
+
+        document.head.appendChild(script);
+
+    });
+
+}
 
 function initOnePage() {
   // new content
