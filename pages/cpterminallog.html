@@ -1,6 +1,13 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>CP Terminal Logs</title>
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootswatch/4.3.1/cyborg/bootstrap.min.css">
 
 <style>
-
+body { padding:20px; }
 .table td,
 .table th {
   color: #ffffff !important;
@@ -12,42 +19,16 @@
     margin-top:10px;
     border-radius:5px;
 }
-  
-.form-control {
-  background-color: #2a2a2a !important;
-}
-  
-.form-control#search {
-  background-color: #2a2a2a !important;
-  color: #ffffff !important;
-  border: 1px solid #3a3a3a !important;
-  border-radius: 8px !important;
-}
 
-/* placeholder */
-.form-control#search::placeholder {
-  color: #8a8a8a !important;
-}
-
-/* focus ala ChatGPT */
-.form-control#search:focus {
-  background-color: #2a2a2a !important;
-  color: #ffffff !important;
-  border-color: #565869 !important;
-  box-shadow: 0 0 0 3px rgba(88, 101, 242, 0.15) !important;
-  outline: none !important;
-}
-
-/* optional: hover biar lebih halus */
-.form-control#search:hover {
-  border-color: #4a4a4a !important;
-}
-
-/* optional: text selection */
-.form-control#search::selection {
-  background: rgba(88, 101, 242, 0.3);
-}
+.log-INFO { color:#5bc0de; }
+.log-ERROR { color:#ff6b6b; }
+.log-WARN { color:#f0ad4e; }
+.log-DEBUG { color:#aaa; }
 </style>
+</head>
+
+<body>
+
 <div class="container-fluid">
 
 <h3>CP Terminal Logs</h3>
@@ -274,8 +255,7 @@ document.getElementById("search").oninput = function() {
     startDashboard();
 };
 
-
-
 </script>
 
-
+</body>
+</html>
