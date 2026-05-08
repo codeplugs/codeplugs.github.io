@@ -12,7 +12,7 @@ async function loadPage(page) {
     if (!res.ok) throw new Error('Page not found');
     const html = await res.text();
     app.innerHTML = html;
-
+    if (page === 'dropboxrawfile.html') setupDropboxRawFile();
     if (page === 'cpterminallog.html') setupCpterminalLog();
     if (page === 'one.html') initOnePage();
     if (page === 'two.html') setupTwoPage();
@@ -73,7 +73,21 @@ if (ytid && ytid.endsWith('.html')) {
   loadPage(pageToLoad);
 });
 
+function setupDropboxRawFile() {
+  const form = document.getElementById("jaxloads");
+const log = document.getElementById("log_result");
 
+form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    log.innerHTML += "Response: <br>";
+
+    } catch (err) {
+        console.error(err);
+        alert("fail submit!");
+    }
+});
+}
 function setupCpterminalLog() {
 
 var firebaseConfig = {
