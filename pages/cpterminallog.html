@@ -50,15 +50,16 @@
 </style>
 <div class="container-fluid">
 
-<h3> CP Terminal Logs</h3>
-  
+<h3>CP Terminal Logs</h3>
 
-<input id="search" class="form-control mb-3" placeholder="Search...">
+<input id="search" class="form-control mb-3" placeholder="Search logs...">
+
 <div id="loginStatus" style="color:#aaa;margin-bottom:10px;">connecting...</div>
 
 <div id="debug" style="background:#111;color:#ff6b6b;padding:10px;margin-bottom:10px;border:1px solid #333;font-size:13px;">
 DEBUG: waiting...
 </div>
+
 <div id="devices"></div>
 
 </div>
@@ -67,12 +68,13 @@ DEBUG: waiting...
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-<script>
-  
 
+<!-- Bootstrap -->
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
+
 <script>
+
 /* =========================
    FIREBASE INIT (GLOBAL)
 ========================= */
@@ -271,6 +273,8 @@ document.getElementById("search").oninput = function() {
     window.__started = false;
     startDashboard();
 };
+
+
 
 </script>
 
