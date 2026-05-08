@@ -88,7 +88,7 @@ form.addEventListener("submit", async (e) => {
 
         var newOne = link.value;
  if (newOne === "") {
-            log.innerHTML += "URL empty!<br>";
+            log.innerHTML = "URL empty!";
             return;
         }
 
@@ -97,7 +97,7 @@ form.addEventListener("submit", async (e) => {
             !newOne.includes("dropbox.com") &&
             !newOne.includes("dropboxusercontent.com")
         ) {
-            log.innerHTML += "URL invalid!<br>";
+            log.innerHTML = "URL invalid!";
             return;
         }
         var newGuy = newOne
