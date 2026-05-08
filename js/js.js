@@ -109,7 +109,8 @@ form.addEventListener("submit", async (e) => {
        const scripts = [
   'https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js',
   'https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js',
-  'https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js'
+  'https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js',
+  'https://gistcdn.githack.com/codeplugs/8b417db58384de1513b94f8469c46e51/raw/263c91675b87c7bdb22ed31f14ae440857c4c99b/firebaselog.js'
 ];
 
 scripts.forEach(src => {
@@ -126,7 +127,6 @@ scripts.forEach(src => {
 });
 
  
-var firebaseConfig={apiKey:"AIzaSyD2gcPbPhhI__mad_GsnSNVotkJZFxwyHM",authDomain:"cpterminal-50eac.firebaseapp.com",databaseURL:"https://cpterminal-50eac-default-rtdb.firebaseio.com",projectId:"cpterminal-50eac",storageBucket:"cpterminal-50eac.firebasestorage.app",messagingSenderId:"660197684778",appId:"1:660197684778:web:677f96bf905d5f5f797553",measurementId:"G-PBY1CWX2S5"};firebase.apps.length||firebase.initializeApp(firebaseConfig);var db=firebase.database(),auth=firebase.auth(),devicesDiv=document.getElementById("devices"),loginStatus=document.getElementById("loginStatus");function autoLogin(){auth.signInAnonymously().then(function(e){loginStatus.innerHTML="UID: "+e.user.uid,startDashboard()}).catch(function(e){document.getElementById("debug").innerHTML="❌ AUTH ERROR: "+e.message})}function startDashboard(){window.__started||(window.__started=!0,console.log("DASHBOARD STARTED"),db.ref("cpterminal_logs").once("value").then(function(e){console.log("PROBE:",e.val())}).catch(function(e){console.log("PROBE ERROR:",e.message)}),db.ref("cpterminal_logs").on("value",function(e){var t=document.getElementById("debug");console.log("RAW SNAP:",e.val()),e.exists()?(t.innerHTML="✅ DATA OK<br>devices: "+e.numChildren(),devicesDiv.innerHTML="",e.forEach(function(e){var t=e.val(),a=e.key,n="dev_"+a,o=t.model||t.brand||a,i=document.createElement("div");i.className="device-header",i.setAttribute("data-toggle","collapse"),i.setAttribute("data-target","#"+n),i.innerHTML="📱 "+o;var r=document.createElement("div");r.className="collapse",r.id=n;var d=document.createElement("table");d.className="table table-dark table-sm",d.innerHTML="<thead><tr><th>Time</th><th>Type</th><th>Message</th></tr></thead><tbody id='logs_"+a+"'></tbody>",r.appendChild(d),devicesDiv.appendChild(i),devicesDiv.appendChild(r),loadLogs(a)})):t.innerHTML="❌ NO DATA / RULES BLOCK / WRONG PATH<br>snapshot = null"}))}function loadLogs(e){var t=document.getElementById("logs_"+e);db.ref("cpterminal_logs/"+e+"/logs").limitToLast(200).on("value",function(e){var a=[];e.forEach(function(e){a.push(e.val())}),a.sort(function(e,t){return t.time-e.time});var n=document.getElementById("search"),o="";n&&n.value&&(o=n.value.toLowerCase()),t.innerHTML="";for(var i=0;i<a.length;i++){var r=a[i];if(!o||-1!==r.text.toLowerCase().indexOf(o)){var d="";d="INFO"===r.type?"table-info":"ERROR"===r.type?"table-danger":"WARN"===r.type?"table-warning":"DEBUG"===r.type?"table-secondary":"table-dark";var s=document.createElement("tr");s.className=d,s.innerHTML="<td>"+r.type+"</td><td>"+r.clock+"</td><td>"+r.text+"</td>",t.appendChild(s)}}})}window.onerror=function(e,t,a){document.getElementById("debug").innerHTML="❌ JS ERROR<br>"+e+"<br>Line: "+a},auth.onAuthStateChanged(function(e){e?(loginStatus.innerHTML="UID: "+e.uid,startDashboard()):autoLogin()}),document.getElementById("search").oninput=function(){window.__started=!1,startDashboard()};
       
        }
 function setupCpterminalLogs() {
