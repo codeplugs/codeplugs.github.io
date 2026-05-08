@@ -106,7 +106,24 @@ form.addEventListener("submit", async (e) => {
   
 }
     function setupCpterminalLog() {
+       const scripts = [
+  'https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js',
+  'https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js',
+  'https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js'
+];
 
+scripts.forEach(src => {
+  const script = document.createElement('script');
+
+  script.src = src;
+  script.async = false;
+
+  script.onload = () => {
+    console.log(src + ' loaded');
+  };
+
+  document.head.appendChild(script);
+});
        }
 function setupCpterminalLogs() {
 
