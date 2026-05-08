@@ -67,10 +67,207 @@ DEBUG: waiting...
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-
 <script>
-  
-</script>
 
+/* =========================
+   FIREBASE INIT (GLOBAL)
+========================= */
+
+var firebaseConfig = {
+   apiKey: "AIzaSyD2gcPbPhhI__mad_GsnSNVotkJZFxwyHM",
+    authDomain: "cpterminal-50eac.firebaseapp.com",
+    databaseURL: "https://cpterminal-50eac-default-rtdb.firebaseio.com",
+    projectId: "cpterminal-50eac",
+    storageBucket: "cpterminal-50eac.firebasestorage.app",
+    messagingSenderId: "660197684778",
+    appId: "1:660197684778:web:677f96bf905d5f5f797553",
+    measurementId: "G-PBY1CWX2S5"
+};
+
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+
+var db = firebase.database();
+var auth = firebase.auth();
+
+var devicesDiv = document.getElementById("devices");
+var loginStatus = document.getElementById("loginStatus");
+
+/* =========================
+   GLOBAL ERROR HANDLER
+========================= */
+
+window.onerror = function(msg, url, line) {
+    document.getElementById("debug").innerHTML =
+        "❌ JS ERROR<br>" + msg + "<br>Line: " + line;
+};
+
+/* =========================
+   AUTH AUTO LOGIN
+========================= */
+
+function autoLogin() {
+
+    auth.signInAnonymously()
+        .then(function(res) {
+            loginStatus.innerHTML = "UID: " + res.user.uid;
+            startDashboard();
+        })
+        .catch(function(err) {
+            document.getElementById("debug").innerHTML =
+                "❌ AUTH ERROR: " + err.message;
+        });
+}
+
+auth.onAuthStateChanged(function(user) {
+
+    if (user) {
+        loginStatus.innerHTML = "UID: " + user.uid;
+        startDashboard();
+    } else {
+        autoLogin();
+    }
+});
+
+/* =========================
+   DASHBOARD CORE
+========================= */
+
+function startDashboard() {
+
+    if (window.__started) return;
+    window.__started = true;
+
+    console.log("DASHBOARD STARTED");
+db.ref("cpterminal_logs").once("value")
+.then(function(snap){
+    console.log("PROBE:", snap.val());
+})
+.catch(function(err){
+    console.log("PROBE ERROR:", err.message);
+});
+    db.ref("cpterminal_logs").on("value", function(snapshot) {
+
+        var debug = document.getElementById("debug");
+
+    console.log("RAW SNAP:", snapshot.val());
+
+    if (!snapshot.exists()) {
+        debug.innerHTML =
+            "❌ NO DATA / RULES BLOCK / WRONG PATH<br>" +
+            "snapshot = null";
+        return;
+    }
+
+    debug.innerHTML =
+        "✅ DATA OK<br>devices: " + snapshot.numChildren();
+
+        //debug.innerHTML = "✅ DEVICES: " + snapshot.numChildren();
+
+        devicesDiv.innerHTML = "";
+
+        snapshot.forEach(function(deviceSnap) {
+            var data = deviceSnap.val();
+            var uid = deviceSnap.key;
+            var collapseId = "dev_" + uid;
+            var deviceName = data.model || data.brand || uid;
+            var header = document.createElement("div");
+            header.className = "device-header";
+            header.setAttribute("data-toggle", "collapse");
+            header.setAttribute("data-target", "#" + collapseId);
+            header.innerHTML = "📱 " + deviceName;
+
+            var body = document.createElement("div");
+            body.className = "collapse";
+            body.id = collapseId;
+
+            var table = document.createElement("table");
+            table.className = "table table-dark table-sm";
+
+            table.innerHTML =
+                "<thead><tr><th>Time</th><th>Type</th><th>Message</th></tr></thead>" +
+                "<tbody id='logs_" + uid + "'></tbody>";
+
+            body.appendChild(table);
+
+            devicesDiv.appendChild(header);
+            devicesDiv.appendChild(body);
+
+            loadLogs(uid);
+        });
+    });
+}
+
+/* =========================
+   LOAD LOGS PER DEVICE
+========================= */
+
+function loadLogs(uid) {
+
+    var tbody = document.getElementById("logs_" + uid);
+
+    db.ref("cpterminal_logs/" + uid + "/logs")
+    .limitToLast(200)
+    .on("value", function(snapshot) {
+
+        var rows = [];
+
+        snapshot.forEach(function(logSnap) {
+            rows.push(logSnap.val());
+        });
+
+        rows.sort(function(a, b) {
+            return b.time - a.time;
+        });
+
+        var searchEl = document.getElementById("search");
+        var search = "";
+
+        if (searchEl && searchEl.value) {
+            search = searchEl.value.toLowerCase();
+        }
+
+        tbody.innerHTML = "";
+
+        for (var i = 0; i < rows.length; i++) {
+
+            var log = rows[i];
+          
+            if (search && log.text.toLowerCase().indexOf(search) === -1) {
+                continue;
+            }
+var typeClass = "";
+
+if (log.type === "INFO") typeClass = "table-info";
+else if (log.type === "ERROR") typeClass = "table-danger";
+else if (log.type === "WARN") typeClass = "table-warning";
+else if (log.type === "DEBUG") typeClass = "table-secondary";
+else typeClass = "table-dark";
+            
+            var tr = document.createElement("tr");
+tr.className = typeClass;
+
+tr.innerHTML =
+    "<td>" + log.type + "</td>" +
+    "<td>" + log.clock + "</td>" +
+    "<td>" + log.text + "</td>";
+
+            tbody.appendChild(tr);
+        }
+    });
+}
+
+/* =========================
+   SEARCH LIVE (RELOAD SIMPLE)
+========================= */
+
+document.getElementById("search").oninput = function() {
+
+    window.__started = false;
+    startDashboard();
+};
+
+</script>
 
 
