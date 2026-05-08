@@ -87,7 +87,19 @@ form.addEventListener("submit", async (e) => {
         log.innerHTML += "Converting...<br>";
 
         var newOne = link.value;
+ if (newOne === "") {
+            log.innerHTML += "URL empty!<br>";
+            return;
+        }
 
+        // cek valid dropbox
+        if (
+            !newOne.includes("dropbox.com") &&
+            !newOne.includes("dropboxusercontent.com")
+        ) {
+            log.innerHTML += "URL invalid!<br>";
+            return;
+        }
         var newGuy = newOne
             .replace("www.", "dl.")
             .replace("dropbox.", "dropboxusercontent.")
