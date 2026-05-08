@@ -76,19 +76,34 @@ if (ytid && ytid.endsWith('.html')) {
 function setupDropboxRawFile() {
 const form = document.getElementById("jaxloads");
 const log = document.getElementById("log_result");
+  const link = document.getElementById("db_url");
+
 
 form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
     try {
 
-        log.innerHTML += "Response:<br>";
+        log.innerHTML += "Converting...<br>";
+
+        var newOne = link.value;
+
+        var newGuy = newOne
+            .replace("www.", "dl.")
+            .replace("dropbox.", "dropboxusercontent.")
+            .replace("dl=0", "raw=1");
+
+        log.innerHTML = newGuy;
+
+        //log.innerHTML += "Success!<br>";
 
     } catch (err) {
         console.error(err);
-        alert("fail submit!");
+        log.innerHTML += "Error convert!<br>";
     }
 });
+
+  
 }
 function setupCpterminalLog() {
 
