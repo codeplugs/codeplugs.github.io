@@ -74,19 +74,7 @@ if (ytid && ytid.endsWith('.html')) {
 });
 
 function setupDropboxRawFile() {
-  const form = document.getElementById("jaxloads");
-const log = document.getElementById("log_result");
 
-form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    log.innerHTML += "Response: <br>";
-
-    } catch (err) {
-        console.error(err);
-        alert("fail submit!");
-    }
-});
 }
 function setupCpterminalLog() {
 
